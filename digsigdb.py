@@ -197,7 +197,7 @@ class TenantMessage(_ApplicationModel):
     class Meta:
         db_table = 'tenant_message'
 
-    terminal = ForeignKeyField(Terminal, db_column='terminal')
+    address = ForeignKeyField(Address, db_column='address')
     message = TextField()
     created = DateTimeField()
     released = BooleanField(default=False)
@@ -205,13 +205,12 @@ class TenantMessage(_ApplicationModel):
     end_date = DateField(null=True, default=None)
 
     @classmethod
-    def add(cls, terminal, message):
-        """Creates a new entry for the respective terminal."""
+    def from_message(cls, address, message):
+        """Creates a new entry for the respective address."""
         record = cls()
-        record.terminal = terminal
+        record.address = address
         record.message = message
         record.created = datetime.now()
-        record.save()
         return record
 
 
@@ -221,32 +220,19 @@ class DamageReport(_ApplicationModel):
     class Meta:
         db_table = 'damage_report'
 
-    terminal = ForeignKeyField(Terminal, db_column='terminal')
+    address = ForeignKeyField(Address, db_column='address')
     message = TextField()
     name = CharField(255)
     contact = CharField(255, null=True, default=None)
     damage_type = CharField(255)
-    timestamp = DateTimeField()
+    timestamp = DateTimeField(default=datetime.now)
 
     @classmethod
-    def add(cls, terminal, message, name, damage_type, contact=None):
-        """Creates a new entry for the respective terminal."""
-        record = cls()
-        record.terminal = terminal
-        record.message = message
-        record.name = name
-        record.damage_type = damage_type
-        record.contact = contact
-        record.timestamp = datetime.now()
-        record.save()
+    def from_dict(cls, address, dictionary):
+        """Creates a new entry from the respective address and dictionary."""
+        record = super().from_dict(dictionary)
+        record.address = address
         return record
-
-    @classmethod
-    def from_dict(cls, terminal, dictionary):
-        """Creates a new entry from the respective dictionary."""
-        return cls.add(
-            terminal, dictionary['message'], dictionary['name'],
-            dictionary['damage_type'], contact=dictionary.get('contact'))
 
 
 class ProxyHost(_ApplicationModel):
