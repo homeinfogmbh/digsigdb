@@ -164,16 +164,12 @@ class CleaningDate(_ApplicationModel):
     @classmethod
     def by_address(cls, address, limit=None):
         """Returns a dictionary for the respective address."""
-        cleanings = []
-
         for counter, cleaning_date in enumerate(cls.select().where(
                 cls.address == address).order_by(cls.timestamp.desc())):
             if limit is not None and counter >= limit:
-                break
+                return
 
-            cleanings.append(cleaning_date.to_dict())
-
-        return cleanings
+            yield cleaning_date
 
     def to_dict(self, *args, short=False, **kwargs):
         """Returns a JSON compliant dictionary."""
