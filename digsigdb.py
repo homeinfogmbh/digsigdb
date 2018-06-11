@@ -140,6 +140,13 @@ class CleaningUser(_ApplicationModel):
 
         raise DuplicateUserError()
 
+    def to_dict(self, *args, short=False, **kwargs):
+        """Returns a JSON-ish dictionary."""
+        if short:
+            return {'id': self.id, 'name': self.name}
+
+        return super().to_dict(*args, **kwargs)
+
 
 class CleaningDate(_ApplicationModel):
     """Cleaning chart entries."""
@@ -179,7 +186,7 @@ class CleaningDate(_ApplicationModel):
                 'user': self.user.name}
 
         dictionary = super().to_dict(*args, **kwargs)
-        dictionary['user'] = self.user.to_dict(primary_key=False)
+        dictionary['user'] = self.user.to_dict(short=True)
         dictionary['address'] = self.address.to_dict(primary_key=False)
         return dictionary
 
