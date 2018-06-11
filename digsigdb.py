@@ -178,7 +178,10 @@ class CleaningDate(_ApplicationModel):
                 'timestamp': self.timestamp.isoformat(),
                 'user': self.user.name}
 
-        return super().to_dict(*args, **kwargs)
+        dictionary = super().to_dict(*args, **kwargs)
+        dictionary['user'] = self.user.to_dict()
+        dictionary['address'] = self.address.to_dict()
+        return dictionary
 
 
 class TenantMessage(_ApplicationModel):
