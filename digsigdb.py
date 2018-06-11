@@ -226,6 +226,7 @@ class DamageReport(_ApplicationModel):
     contact = CharField(255, null=True, default=None)
     damage_type = CharField(255)
     timestamp = DateTimeField(default=datetime.now)
+    checked = BooleanField(default=False)
 
     @classmethod
     def from_dict(cls, address, dictionary):
