@@ -5,15 +5,14 @@ data that is not part of dscms4.
 """
 
 from datetime import datetime
-from peewee import Model, PrimaryKeyField, ForeignKeyField, TextField, \
-    DateTimeField, BooleanField, IntegerField, CharField, DateField
+from peewee import PrimaryKeyField, ForeignKeyField, TextField, DateTimeField,\
+    BooleanField, IntegerField, CharField, DateField
 
 from configlib import INIParser
 from homeinfo.crm import Address, Customer
-from peeweeplus import MySQLDatabase
+from peeweeplus import MySQLDatabase, JSONModel
 from terminallib import Terminal
 
-from appcmd.config import CONFIG
 
 __all__ = [
     'Command',
@@ -35,7 +34,7 @@ class DuplicateUserError(Exception):
     pass
 
 
-class ApplicationModel(Model):
+class _ApplicationModel(JSONModel):
     """Abstract common model."""
 
     class Meta:
@@ -45,7 +44,7 @@ class ApplicationModel(Model):
     id = PrimaryKeyField()
 
 
-class Command(ApplicationModel):
+class Command(_ApplicationModel):
     """Command entries."""
 
     customer = ForeignKeyField(Customer, db_column='customer')
@@ -77,7 +76,7 @@ class Command(ApplicationModel):
             self.save()
 
 
-class Statistics(ApplicationModel):
+class Statistics(_ApplicationModel):
     """Usage statistics entries."""
 
     customer = ForeignKeyField(Customer, db_column='customer')
@@ -107,7 +106,7 @@ class Statistics(ApplicationModel):
         return Terminal.by_ids(self.customer.id, self.tid)
 
 
-class CleaningUser(ApplicationModel):
+class CleaningUser(_ApplicationModel):
     """Accounts for valet service employees."""
 
     class Meta:
@@ -138,15 +137,11 @@ class CleaningUser(ApplicationModel):
 
             record.save()
             return record
-        else:
-            raise DuplicateUserError()
 
-    def to_dict(self):
-        """Returns a JSON compliant dictionary."""
-        return {'name': self.name, 'annotation': self.annotation}
+        raise DuplicateUserError()
 
 
-class CleaningDate(ApplicationModel):
+class CleaningDate(_ApplicationModel):
     """Cleaning chart entries."""
 
     class Meta:
@@ -180,21 +175,17 @@ class CleaningDate(ApplicationModel):
 
         return cleanings
 
-    def to_dict(self, verbose=False):
+    def to_dict(self, *args, short=False, **kwargs):
         """Returns a JSON compliant dictionary."""
-        dictionary = {
-            'timestamp': self.timestamp.isoformat()}
+        if short:
+            return {
+                'timestamp': self.timestamp.isoformat(),
+                'user': self.user.name}
 
-        if verbose:
-            dictionary['user'] = self.user.to_dict()
-            dictionary['address'] = self.address.to_dict()
-        else:
-            dictionary['user'] = self.user.name
-
-        return dictionary
+        return super().to_dict(*args, **kwargs)
 
 
-class TenantMessage(ApplicationModel):
+class TenantMessage(_ApplicationModel):
     """Tenant to tenant messages."""
 
     class Meta:
@@ -218,7 +209,7 @@ class TenantMessage(ApplicationModel):
         return record
 
 
-class DamageReport(ApplicationModel):
+class DamageReport(_ApplicationModel):
     """Damage reports."""
 
     class Meta:
@@ -252,7 +243,7 @@ class DamageReport(ApplicationModel):
             dictionary['damage_type'], contact=dictionary.get('contact'))
 
 
-class ProxyHost(ApplicationModel):
+class ProxyHost(_ApplicationModel):
     """Valid proxy hosts."""
 
     class Meta:
