@@ -179,8 +179,8 @@ class CleaningDate(_ApplicationModel):
                 'user': self.user.name}
 
         dictionary = super().to_dict(*args, **kwargs)
-        dictionary['user'] = self.user.to_dict()
-        dictionary['address'] = self.address.to_dict()
+        dictionary['user'] = self.user.to_dict(primary_key=False)
+        dictionary['address'] = self.address.to_dict(primary_key=False)
         return dictionary
 
 
