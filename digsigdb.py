@@ -47,7 +47,7 @@ class _ApplicationModel(JSONModel):
 class Command(_ApplicationModel):
     """Command entries."""
 
-    customer = ForeignKeyField(Customer, db_column='customer')
+    customer = ForeignKeyField(Customer, column_name='customer')
     vid = IntegerField()
     task = CharField(16)
     created = DateTimeField()
@@ -79,7 +79,7 @@ class Command(_ApplicationModel):
 class Statistics(_ApplicationModel):
     """Usage statistics entries."""
 
-    customer = ForeignKeyField(Customer, db_column='customer')
+    customer = ForeignKeyField(Customer, column_name='customer')
     vid = IntegerField()
     tid = IntegerField(null=True, default=None)
     document = CharField(255)
@@ -113,7 +113,7 @@ class CleaningUser(_ApplicationModel):
         db_table = 'cleaning_user'
 
     name = CharField(64)
-    customer = ForeignKeyField(Customer, db_column='customer')
+    customer = ForeignKeyField(Customer, column_name='customer')
     pin = CharField(4)
     annotation = CharField(255, null=True, default=None)
     created = DateTimeField()
@@ -154,8 +154,8 @@ class CleaningDate(_ApplicationModel):
     class Meta:
         db_table = 'cleaning_date'
 
-    user = ForeignKeyField(CleaningUser, db_column='user')
-    address = ForeignKeyField(Address, db_column='address')
+    user = ForeignKeyField(CleaningUser, column_name='user')
+    address = ForeignKeyField(Address, column_name='address')
     timestamp = DateTimeField()
 
     @classmethod
@@ -197,7 +197,8 @@ class TenantMessage(_ApplicationModel):
     class Meta:
         db_table = 'tenant_message'
 
-    address = ForeignKeyField(Address, db_column='address')
+    customer = ForeignKeyField(Customer, column_name='customer')
+    address = ForeignKeyField(Address, column_name='address')
     message = TextField()
     created = DateTimeField(default=datetime.now)
     released = BooleanField(default=False)
@@ -205,12 +206,18 @@ class TenantMessage(_ApplicationModel):
     end_date = DateField(null=True, default=None)
 
     @classmethod
-    def from_message(cls, address, message):
-        """Creates a new entry for the respective address."""
+    def add(cls, customer, address, message):
+        """Creates a new entry for the respective customer and address."""
         record = cls()
+        record.customer = customer
         record.address = address
         record.message = message
         return record
+
+    @classmethod
+    def from_terminal(cls, terminal, message):
+        """Creates a new entry for the respective terminal."""
+        return cls.add(terminal.customer, terminal.location.address, message)
 
 
 class DamageReport(_ApplicationModel):
@@ -219,7 +226,8 @@ class DamageReport(_ApplicationModel):
     class Meta:
         db_table = 'damage_report'
 
-    address = ForeignKeyField(Address, db_column='address')
+    customer = ForeignKeyField(Customer, column_name='customer')
+    address = ForeignKeyField(Address, column_name='address')
     message = TextField()
     name = CharField(255)
     contact = CharField(255, null=True, default=None)
@@ -228,11 +236,21 @@ class DamageReport(_ApplicationModel):
     checked = BooleanField(default=False)
 
     @classmethod
-    def from_dict(cls, address, dictionary):
-        """Creates a new entry from the respective address and dictionary."""
+    def from_dict(cls, customer, address, dictionary):
+        """Creates a new entry from the respective
+        customer, address and dictionary.
+        """
         record = super().from_dict(dictionary)
+        record.customer = customer
         record.address = address
         return record
+
+    @classmethod
+    def from_terminal(cls, terminal, dictionary):
+        """Creates a new entry for the respective terminal."""
+        return cls.from_dict(
+            terminal.customer, terminal.location.address, dictionary)
+
 
 
 class ProxyHost(_ApplicationModel):
