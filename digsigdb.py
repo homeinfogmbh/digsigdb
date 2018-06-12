@@ -199,7 +199,7 @@ class TenantMessage(_ApplicationModel):
 
     address = ForeignKeyField(Address, db_column='address')
     message = TextField()
-    created = DateTimeField()
+    created = DateTimeField(default=datetime.now)
     released = BooleanField(default=False)
     start_date = DateField(null=True, default=None)
     end_date = DateField(null=True, default=None)
@@ -210,7 +210,6 @@ class TenantMessage(_ApplicationModel):
         record = cls()
         record.address = address
         record.message = message
-        record.created = datetime.now()
         return record
 
 
