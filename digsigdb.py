@@ -110,7 +110,7 @@ class CleaningUser(_ApplicationModel):
     """Accounts for valet service employees."""
 
     class Meta:
-        db_table = 'cleaning_user'
+        table_name = 'cleaning_user'
 
     name = CharField(64)
     customer = ForeignKeyField(Customer, column_name='customer')
@@ -152,7 +152,7 @@ class CleaningDate(_ApplicationModel):
     """Cleaning chart entries."""
 
     class Meta:
-        db_table = 'cleaning_date'
+        table_name = 'cleaning_date'
 
     user = ForeignKeyField(CleaningUser, column_name='user')
     address = ForeignKeyField(Address, column_name='address')
@@ -195,7 +195,7 @@ class TenantMessage(_ApplicationModel):
     """Tenant to tenant messages."""
 
     class Meta:
-        db_table = 'tenant_message'
+        table_name = 'tenant_message'
 
     customer = ForeignKeyField(Customer, column_name='customer')
     address = ForeignKeyField(Address, column_name='address')
@@ -224,7 +224,7 @@ class DamageReport(_ApplicationModel):
     """Damage reports."""
 
     class Meta:
-        db_table = 'damage_report'
+        table_name = 'damage_report'
 
     customer = ForeignKeyField(Customer, column_name='customer')
     address = ForeignKeyField(Address, column_name='address')
@@ -257,6 +257,6 @@ class ProxyHost(_ApplicationModel):
     """Valid proxy hosts."""
 
     class Meta:
-        db_table = 'proxy_hosts'
+        table_name = 'proxy_hosts'
 
     hostname = CharField(255)
