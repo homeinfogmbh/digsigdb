@@ -252,7 +252,6 @@ class DamageReport(_ApplicationModel):
             terminal.customer, terminal.location.address, dictionary)
 
 
-
 class ProxyHost(_ApplicationModel):
     """Valid proxy hosts."""
 
