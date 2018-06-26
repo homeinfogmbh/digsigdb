@@ -219,6 +219,15 @@ class TenantMessage(_ApplicationModel):
         """Creates a new entry for the respective terminal."""
         return cls.add(terminal.customer, terminal.location.address, message)
 
+    def to_dict(self, *args, address=True, **kwargs):
+        """Adds the address to the dictionary."""
+        dictionary = super().to_dict(*args, **kwargs)
+
+        if address:
+            dictionary['address'] = self.address.to_dict()
+
+        return dictionary
+
 
 class DamageReport(_ApplicationModel):
     """Damage reports."""
