@@ -277,19 +277,19 @@ class ProxyHost(_ApplicationModel):
 class Screenshot(_ApplicationModel):
     """Stores screenshots."""
 
-    entity = UUID4Field()
+    uuid = UUID4Field()
     customer = ForeignKeyField(Customer, column_name='customer')
     address = ForeignKeyField(Address, column_name='address')
     _bytes = BlobField(column_name='bytes')
 
     @classmethod
-    def add(cls, entity, customer, address, bytes_):
-        """Adds a screenshot for the respective entity."""
+    def add(cls, uuid, customer, address, bytes_):
+        """Adds a screenshot."""
         try:
-            return cls.fetch(entity, customer, address)
+            return cls.fetch(uuid, customer, address)
         except cls.DoesNotExist:
             screenshot = cls()
-            screenshot.entity = entity
+            screenshot.uuid = uuid
             screenshot.customer = customer
             screenshot.address = address
             screenshot.bytes = bytes_
@@ -297,10 +297,10 @@ class Screenshot(_ApplicationModel):
             return screenshot
 
     @classmethod
-    def fetch(cls, entity, customer, address):
-        """Returns a screenshot by entity, customer and address."""
+    def fetch(cls, uuid, customer, address):
+        """Returns a screenshot by uuid, customer and address."""
         return cls.get(
-            (cls.entity == entity)
+            (cls.uuid == uuid)
             & (cls.customer == customer)
             & (cls.address == address))
 
@@ -321,15 +321,15 @@ class Screenshot(_ApplicationModel):
 
     @property
     def log_entries(self):
-        """Yields raw log entry records for this entity."""
+        """Yields raw log entry records for this screenshot."""
         return ScreenshotLog.select().where(
-            (ScreenshotLog.entity == self.entity)
+            (ScreenshotLog.uuid == self.uuid)
             & (ScreenshotLog.customer == self.customer)
             & (ScreenshotLog.address == self.address))
 
     @property
     def readouts(self):
-        """Yields readouts when this entity was shown."""
+        """Yields readouts when this screenshot was shown."""
         for log_entry in self.log_entries:
             yield (log_entry.begin, log_entry.end)
 
@@ -340,29 +340,29 @@ class ScreenshotLog(_ApplicationModel):
     class Meta:
         table_name = 'screenshot_log'
 
-    entity = UUID4Field(default=None)
+    uuid = UUID4Field(default=None)
     customer = ForeignKeyField(Customer, column_name='customer')
     address = ForeignKeyField(Address, column_name='address')
     begin = DateTimeField(default=datetime.now)
     end = DateTimeField(null=True)
 
     @classmethod
-    def add(cls, entity, customer, address):
+    def add(cls, uuid, customer, address):
         """Adds a screenshot log entry."""
         record = cls()
-        record.entity = entity
+        record.uuid = uuid
         record.customer = customer
         record.address = address
         record.save()
         return record
 
     @classmethod
-    def close(cls, entity, customer, address):
-        """Closes the latest screenshot log
-        entry of the provided entity and address.
+    def close(cls, uuid, customer, address):
+        """Closes the latest screenshot log entry
+        of the provided uuid, customer and address.
         """
         record = cls.get(
-            (cls.entity == entity)
+            (cls.uuid == uuid)
             & (cls.customer == customer)
             & (cls.address == address)
             & (cls.end >> None)).order_by(cls.begin.desc()).get()
