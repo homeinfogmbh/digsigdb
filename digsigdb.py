@@ -255,6 +255,15 @@ class DamageReport(_ApplicationModel):
         record.address = address
         return record
 
+    def to_dict(self, *args, address=True, **kwargs):
+        """Returns a JSON-ish dictionary."""
+        dictionary = super().to_dict(*args, **kwargs)
+
+        if address:
+            dictionary['address'] = self.address.to_dict()
+
+        return dictionary
+
 
 class ProxyHost(_ApplicationModel):
     """Valid proxy hosts."""
