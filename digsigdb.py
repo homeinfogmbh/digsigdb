@@ -274,7 +274,21 @@ class Screenshot(_ApplicationModel):
     """Stores screenshots."""
 
     entity = UUID4Field()
+    address = ForeignKeyField(Address, column_name='address')
     bytes = BlobField()
+
+    @classmethod
+    def add(cls, entity, address, bytes_):
+        """Adds a screenshot for the respective entity."""
+        try:
+            return cls.get((cls.entity == entity) & (cls.address == address))
+        except cls.DoesNotExist:
+            screenshot = cls()
+            screenshot.entity = entity
+            screenshot.address = address
+            screenshot.bytes = bytes_
+            screenshot.save()
+            return screenshot
 
 
 class ScreenshotLog(_ApplicationModel):
@@ -284,5 +298,28 @@ class ScreenshotLog(_ApplicationModel):
         table_name = 'screenshot_log'
 
     entity = UUID4Field(default=None)
+    address = ForeignKeyField(Address, column_name='address')
     begin = DateTimeField(default=datetime.now)
     end = DateTimeField(null=True)
+
+    @classmethod
+    def add(cls, entity, address):
+        """Adds a screenshot log entry."""
+        record = cls()
+        record.entity = entity
+        record.address = address
+        record.save()
+        return record
+
+    @classmethod
+    def close(cls, entity, address):
+        """Closes the latest screenshot log
+        entry of the provided entity and address.
+        """
+        record = cls.get(
+            (cls.entity == entity)
+            & (cls.address == address)
+            & (cls.end >> None)).order_by(cls.begin.desc()).get()
+        record.end = datetime.now()
+        record.save()
+        return record
