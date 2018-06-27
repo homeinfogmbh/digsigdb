@@ -6,11 +6,11 @@ data that is not part of dscms4.
 
 from datetime import datetime
 from peewee import PrimaryKeyField, ForeignKeyField, TextField, DateTimeField,\
-    BooleanField, IntegerField, CharField, DateField
+    BooleanField, IntegerField, CharField, DateField, BlobField
 
 from configlib import INIParser
 from homeinfo.crm import Address, Customer
-from peeweeplus import MySQLDatabase, JSONModel
+from peeweeplus import MySQLDatabase, JSONModel, UUID4Field
 from terminallib import Terminal
 
 
@@ -268,3 +268,21 @@ class ProxyHost(_ApplicationModel):
         table_name = 'proxy_hosts'
 
     hostname = CharField(255)
+
+
+class Screenshot(_ApplicationModel):
+    """Stores screenshots."""
+
+    entity = UUID4Field()
+    bytes = BlobField()
+
+
+class ScreenshotLog(_ApplicationModel):
+    """Logs displayed screenshots."""
+
+    class Meta:
+        table_name = 'screenshot_log'
+
+    entity = UUID4Field(default=None)
+    begin = DateTimeField(default=datetime.now)
+    end = DateTimeField(null=True)
