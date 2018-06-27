@@ -10,6 +10,7 @@ from peewee import PrimaryKeyField, ForeignKeyField, TextField, DateTimeField,\
 
 from configlib import INIParser
 from homeinfo.crm import Address, Customer
+from mimeutil import mimetype
 from peeweeplus import MySQLDatabase, JSONModel, UUID4Field
 from terminallib import Terminal
 
@@ -270,7 +271,7 @@ class Screenshot(_ApplicationModel):
     entity = UUID4Field()
     customer = ForeignKeyField(Customer, column_name='customer')
     address = ForeignKeyField(Address, column_name='address')
-    bytes = BlobField()
+    _bytes = BlobField(column_name='bytes')
 
     @classmethod
     def add(cls, entity, customer, address, bytes_):
@@ -293,6 +294,35 @@ class Screenshot(_ApplicationModel):
             (cls.entity == entity)
             & (cls.customer == customer)
             & (cls.address == address))
+
+    @property
+    def bytes(self):
+        """Returns the respective bytes."""
+        return self._bytes
+
+    @bytes.setter
+    def bytes(self, bytes_):
+        """Returns the respective bytes."""
+        self._bytes = bytes_
+
+    @property
+    def mimetype(self):
+        """Returns the data's mime type."""
+        return mimetype(self._bytes)
+
+    @property
+    def log_entries(self):
+        """Yields raw log entry records for this entity."""
+        return ScreenshotLog.select().where(
+            (ScreenshotLog.entity == self.entity)
+            & (ScreenshotLog.customer == self.customer)
+            & (ScreenshotLog.address == self.address))
+
+    @property
+    def readouts(self):
+        """Yields readouts when this entity was shown."""
+        for log_entry in self.log_entries:
+            yield (log_entry.begin, log_entry.end)
 
 
 class ScreenshotLog(_ApplicationModel):
