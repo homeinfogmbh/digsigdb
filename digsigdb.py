@@ -254,12 +254,6 @@ class DamageReport(_ApplicationModel):
         record.address = address
         return record
 
-    @classmethod
-    def from_terminal(cls, terminal, dictionary):
-        """Creates a new entry for the respective terminal."""
-        return cls.from_dict(
-            terminal.customer, terminal.location.address, dictionary)
-
 
 class ProxyHost(_ApplicationModel):
     """Valid proxy hosts."""
@@ -274,21 +268,31 @@ class Screenshot(_ApplicationModel):
     """Stores screenshots."""
 
     entity = UUID4Field()
+    customer = ForeignKeyField(Customer, column_name='customer')
     address = ForeignKeyField(Address, column_name='address')
     bytes = BlobField()
 
     @classmethod
-    def add(cls, entity, address, bytes_):
+    def add(cls, entity, customer, address, bytes_):
         """Adds a screenshot for the respective entity."""
         try:
-            return cls.get((cls.entity == entity) & (cls.address == address))
+            return cls.fetch(entity, customer, address)
         except cls.DoesNotExist:
             screenshot = cls()
             screenshot.entity = entity
+            screenshot.customer = customer
             screenshot.address = address
             screenshot.bytes = bytes_
             screenshot.save()
             return screenshot
+
+    @classmethod
+    def fetch(cls, entity, customer, address):
+        """Returns a screenshot by entity, customer and address."""
+        return cls.get(
+            (cls.entity == entity)
+            & (cls.customer == customer)
+            & (cls.address == address))
 
 
 class ScreenshotLog(_ApplicationModel):
@@ -298,26 +302,29 @@ class ScreenshotLog(_ApplicationModel):
         table_name = 'screenshot_log'
 
     entity = UUID4Field(default=None)
+    customer = ForeignKeyField(Customer, column_name='customer')
     address = ForeignKeyField(Address, column_name='address')
     begin = DateTimeField(default=datetime.now)
     end = DateTimeField(null=True)
 
     @classmethod
-    def add(cls, entity, address):
+    def add(cls, entity, customer, address):
         """Adds a screenshot log entry."""
         record = cls()
         record.entity = entity
+        record.customer = customer
         record.address = address
         record.save()
         return record
 
     @classmethod
-    def close(cls, entity, address):
+    def close(cls, entity, customer, address):
         """Closes the latest screenshot log
         entry of the provided entity and address.
         """
         record = cls.get(
             (cls.entity == entity)
+            & (cls.customer == customer)
             & (cls.address == address)
             & (cls.end >> None)).order_by(cls.begin.desc()).get()
         record.end = datetime.now()
