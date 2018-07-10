@@ -9,7 +9,7 @@ from peewee import PrimaryKeyField, ForeignKeyField, TextField, DateTimeField,\
     BooleanField, IntegerField, CharField, DateField, BlobField
 
 from configlib import INIParser
-from homeinfo.crm import Address, Customer
+from mdb import Address, Customer
 from mimeutil import mimetype
 from peeweeplus import MySQLDatabase, JSONModel, UUID4Field
 from terminallib import Terminal
