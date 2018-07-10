@@ -98,6 +98,17 @@ class Statistics(_ApplicationModel):
         record.save()
         return record
 
+    @classmethod
+    def latest(cls, terminal):
+        """Returns the latest statistics
+        record for the respective terminal.
+        """
+        for statistics in cls.select().limit(1).where(
+                (cls.customer == terminal.customer.id) &
+                (cls.tid == terminal.tid)).order_by(
+                    cls.timestamp.desc()):
+            return statistics
+
     @property
     def terminal(self):
         """Returns the appropriate terminal."""
