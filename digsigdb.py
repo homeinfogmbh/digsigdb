@@ -11,13 +11,14 @@ from peewee import PrimaryKeyField, ForeignKeyField, TextField, DateTimeField,\
 from configlib import INIParser
 from mdb import Address, Customer
 from mimeutil import mimetype
-from peeweeplus import MySQLDatabase, JSONModel, UUID4Field
+from peeweeplus import MySQLDatabase, JSONModel, UUID4Field, CascadingFKField
 from terminallib import Terminal
 
 
 __all__ = [
     'Command',
     'Statistics',
+    'LatestStats',
     'CleaningUser',
     'CleaningDate',
     'TenantMessage',
@@ -116,6 +117,33 @@ class Statistics(_ApplicationModel):
             return None
 
         return Terminal.by_ids(self.customer.id, self.tid)
+
+
+class LatestStats(_ApplicationModel):
+    """Stores the last statistics of the respective terminal."""
+
+    class Meta:
+        table_name = 'latest_stats'
+
+    terminal = CascadingFKField(Terminal, column_name='terminal')
+    statistics = CascadingFKField(
+        Statistics, column_name='statistics', null=True)
+
+    @classmethod
+    def refresh(cls, terminal=None):
+        """Refreshes the stats for the respective terminal."""
+        if terminal is None:
+            for terminal in Terminal:
+                cls.refresh(terminal=terminal)
+        else:
+            try:
+                current = cls.get(cls.terminal == terminal)
+            except cls.DoesNotExist:
+                current = cls()
+                current.terminal = terminal
+
+            current.statistics = Statistics.latest(terminal)
+            current.save()
 
 
 class CleaningUser(_ApplicationModel):
