@@ -15,8 +15,10 @@ from sys import stderr, exit as exit_
 
 from docopt import docopt
 
-from digsigdb import LatestStats
+from syslib import script
 from terminallib import Terminal
+
+from digsigdb import LatestStats
 
 
 def parse_options(options):
@@ -65,6 +67,7 @@ def parse_options(options):
     return (terminal, warning, critical)
 
 
+@script
 def main(options):
     """Checks the terminal's stats."""
 
@@ -94,4 +97,3 @@ def main(options):
 
 if __name__ == '__main__':
     exit_(main(docopt(__doc__)))
-
