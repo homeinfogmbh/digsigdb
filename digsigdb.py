@@ -4,7 +4,7 @@ Provides ORM models for digital signage
 data that is not part of dscms4.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from peewee import PrimaryKeyField, ForeignKeyField, TextField, DateTimeField,\
     BooleanField, IntegerField, CharField, DateField, BlobField
 
@@ -16,6 +16,8 @@ from terminallib import Terminal
 
 
 __all__ = [
+    'DuplicateUserError',
+    'refresh_termstats',
     'Command',
     'Statistics',
     'LatestStats',
@@ -34,6 +36,16 @@ class DuplicateUserError(Exception):
     """Indicates a duplicate user entry."""
 
     pass
+
+
+def refresh_termstats(truncate=365):
+    """Refreshes the terminal statistics, truncating the statistics
+    entries to the amount of days specified by truncate beforehand.
+    """
+
+    tdelta = timedelta(days=truncate)
+    Statistics.truncate(tdelta)
+    LatestStats.refresh()
 
 
 class _ApplicationModel(JSONModel):
@@ -98,6 +110,11 @@ class Statistics(_ApplicationModel):
         record.timestamp = datetime.now()
         record.save()
         return record
+
+    @classmethod
+    def truncate(cls, tdelta):
+        """Removes all entries older than now minus the given timedelta."""
+        return cls.delete().where(cls.timestamp < datetime.now() - tdelta)
 
     @classmethod
     def latest(cls, terminal):
