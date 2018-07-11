@@ -151,14 +151,20 @@ class LatestStats(_ApplicationModel):
         if terminal is None:
             for terminal in Terminal:
                 cls.refresh(terminal=terminal)
-        else:
-            try:
-                current = cls.get(cls.terminal == terminal)
-            except cls.DoesNotExist:
-                current = cls()
-                current.terminal = terminal
 
+            return
+
+        try:
+            current = cls.get(cls.terminal == terminal)
+        except cls.DoesNotExist:
+            current = cls()
+            current.terminal = terminal
+
+        try:
             current.statistics = Statistics.latest(terminal)
+        except Statistics.DoesNotExist:
+            current.delete_instance()
+        else:
             current.save()
 
 
