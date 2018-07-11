@@ -104,11 +104,10 @@ class Statistics(_ApplicationModel):
         """Returns the latest statistics
         record for the respective terminal.
         """
-        for statistics in cls.select().limit(1).where(
-                (cls.customer == terminal.customer.id) &
-                (cls.tid == terminal.tid)).order_by(
-                    cls.timestamp.desc()):
-            return statistics
+        return cls.select().where(
+            (cls.customer == terminal.customer)
+            & (cls.tid == terminal.tid)).order_by(
+                cls.timestamp.desc()).get()
 
     @property
     def terminal(self):
