@@ -114,7 +114,7 @@ class Statistics(_ApplicationModel):
     @classmethod
     def truncate(cls, tdelta):
         """Removes all entries older than now minus the given timedelta."""
-        return cls.delete().where(cls.timestamp < datetime.now() - tdelta)
+        cls.delete().where(cls.timestamp < datetime.now() - tdelta).execute()
 
     @classmethod
     def latest(cls, terminal):
