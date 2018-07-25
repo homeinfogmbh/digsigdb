@@ -176,6 +176,7 @@ class CleaningUser(_ApplicationModel):
         table_name = 'cleaning_user'
 
     name = CharField(64)
+    type_ = CharField(64, column_name='type', null=True)
     customer = ForeignKeyField(Customer, column_name='customer')
     pin = CharField(4)
     annotation = CharField(255, null=True, default=None)
@@ -206,7 +207,7 @@ class CleaningUser(_ApplicationModel):
     def to_dict(self, *args, short=False, **kwargs):
         """Returns a JSON-ish dictionary."""
         if short:
-            return {'id': self.id, 'name': self.name}
+            return {'id': self.id, 'name': self.name, 'type': self.type_}
 
         return super().to_dict(*args, **kwargs)
 
