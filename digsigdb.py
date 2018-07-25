@@ -207,6 +207,9 @@ class CleaningUser(_ApplicationModel):
     def to_dict(self, *args, short=False, **kwargs):
         """Returns a JSON-ish dictionary."""
         if short:
+            if self.type_ is None:
+                return self.name    # Compat.
+
             return {'name': self.name, 'type': self.type_}
 
         return super().to_dict(*args, **kwargs)
