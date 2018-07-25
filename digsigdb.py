@@ -207,7 +207,7 @@ class CleaningUser(_ApplicationModel):
     def to_dict(self, *args, short=False, **kwargs):
         """Returns a JSON-ish dictionary."""
         if short:
-            return {'id': self.id, 'name': self.name, 'type': self.type_}
+            return {'name': self.name, 'type': self.type_}
 
         return super().to_dict(*args, **kwargs)
 
@@ -244,13 +244,13 @@ class CleaningDate(_ApplicationModel):
 
     def to_dict(self, *args, short=False, **kwargs):
         """Returns a JSON compliant dictionary."""
+        user = self.user.to_dict(short=short)
+
         if short:
-            return {
-                'timestamp': self.timestamp.isoformat(),
-                'user': self.user.name}
+            return {'timestamp': self.timestamp.isoformat(), 'user': user}
 
         dictionary = super().to_dict(*args, **kwargs)
-        dictionary['user'] = self.user.to_dict(short=True)
+        dictionary['user'] = user
         dictionary['address'] = self.address.to_dict(primary_key=False)
         return dictionary
 
