@@ -284,7 +284,7 @@ class TenantMessage(_ApplicationModel):
     @classmethod
     def from_terminal(cls, terminal, message):
         """Creates a new entry for the respective terminal."""
-        return cls.add(terminal.customer, terminal.location.address, message)
+        return cls.add(terminal.customer, terminal.address, message)
 
     def to_dict(self, *args, address=True, **kwargs):
         """Adds the address to the dictionary."""
