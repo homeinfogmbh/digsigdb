@@ -6,8 +6,8 @@ data that is not part of dscms4.
 from datetime import datetime, timedelta
 from uuid import uuid4
 
-from peewee import PrimaryKeyField, ForeignKeyField, TextField, DateTimeField,\
-    BooleanField, IntegerField, CharField, DateField, BlobField, UUIDField
+from peewee import ForeignKeyField, TextField, DateTimeField, BooleanField, \
+    IntegerField, CharField, DateField, BlobField, UUIDField
 
 from configlib import INIParser
 from mdb import Address, Customer
@@ -55,8 +55,6 @@ class _ApplicationModel(JSONModel):
     class Meta:
         database = DATABASE
         schema = database.database
-
-    id = PrimaryKeyField()
 
 
 class Command(_ApplicationModel):
