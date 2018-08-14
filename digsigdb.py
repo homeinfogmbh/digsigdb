@@ -3,15 +3,16 @@
 Provides ORM models for digital signage
 data that is not part of dscms4.
 """
-
 from datetime import datetime, timedelta
+from uuid import uuid4
+
 from peewee import PrimaryKeyField, ForeignKeyField, TextField, DateTimeField,\
-    BooleanField, IntegerField, CharField, DateField, BlobField
+    BooleanField, IntegerField, CharField, DateField, BlobField, UUIDField
 
 from configlib import INIParser
 from mdb import Address, Customer
 from mimeutil import mimetype
-from peeweeplus import MySQLDatabase, JSONModel, UUID4Field, CascadingFKField
+from peeweeplus import MySQLDatabase, JSONModel, JSONField, CascadingFKField
 from terminallib import Terminal
 
 
@@ -61,11 +62,11 @@ class _ApplicationModel(JSONModel):
 class Command(_ApplicationModel):
     """Command entries."""
 
-    customer = ForeignKeyField(Customer, column_name='customer')
-    vid = IntegerField()
-    task = CharField(16)
-    created = DateTimeField()
-    completed = DateTimeField(null=True, default=None)
+    customer = JSONField(ForeignKeyField, Customer, column_name='customer')
+    vid = JSONField(IntegerField)
+    task = JSONField(CharField, 16)
+    created = JSONField(DateTimeField)
+    completed = JSONField(DateTimeField, null=True, default=None)
 
     @classmethod
     def add(cls, customer, vid, task):
@@ -93,11 +94,11 @@ class Command(_ApplicationModel):
 class Statistics(_ApplicationModel):
     """Usage statistics entries."""
 
-    customer = ForeignKeyField(Customer, column_name='customer')
-    vid = IntegerField()
-    tid = IntegerField(null=True, default=None)
-    document = CharField(255)
-    timestamp = DateTimeField()
+    customer = JSONField(ForeignKeyField, Customer, column_name='customer')
+    vid = JSONField(IntegerField)
+    tid = JSONField(IntegerField, null=True, default=None)
+    document = JSONField(CharField, 255)
+    timestamp = JSONField(DateTimeField)
 
     @classmethod
     def add(cls, customer, vid, tid, document):
@@ -142,9 +143,9 @@ class LatestStats(_ApplicationModel):
     class Meta:
         table_name = 'latest_stats'
 
-    terminal = CascadingFKField(Terminal, column_name='terminal')
-    statistics = CascadingFKField(
-        Statistics, column_name='statistics', null=True)
+    terminal = JSONField(CascadingFKField, Terminal, column_name='terminal')
+    statistics = JSONField(
+        CascadingFKField, Statistics, column_name='statistics', null=True)
 
     @classmethod
     def refresh(cls, terminal=None):
@@ -175,13 +176,13 @@ class CleaningUser(_ApplicationModel):
     class Meta:
         table_name = 'cleaning_user'
 
-    name = CharField(64)
-    type_ = CharField(64, column_name='type', null=True)
-    customer = ForeignKeyField(Customer, column_name='customer')
-    pin = CharField(4)
-    annotation = CharField(255, null=True, default=None)
-    created = DateTimeField()
-    enabled = BooleanField(default=False)
+    name = JSONField(CharField, 64)
+    type_ = JSONField(CharField, 64, column_name='type', null=True)
+    customer = JSONField(ForeignKeyField, Customer, column_name='customer')
+    pin = JSONField(CharField, 4)
+    annotation = JSONField(CharField, 255, null=True, default=None)
+    created = JSONField(DateTimeField)
+    enabled = JSONField(BooleanField, default=False)
 
     @classmethod
     def add(cls, name, customer, pin, annotation=None, enabled=None):
@@ -221,9 +222,9 @@ class CleaningDate(_ApplicationModel):
     class Meta:
         table_name = 'cleaning_date'
 
-    user = ForeignKeyField(CleaningUser, column_name='user')
-    address = ForeignKeyField(Address, column_name='address')
-    timestamp = DateTimeField()
+    user = JSONField(ForeignKeyField, CleaningUser, column_name='user')
+    address = JSONField(ForeignKeyField, Address, column_name='address')
+    timestamp = JSONField(DateTimeField)
 
     @classmethod
     def add(cls, user, address):
@@ -264,13 +265,13 @@ class TenantMessage(_ApplicationModel):
     class Meta:
         table_name = 'tenant_message'
 
-    customer = ForeignKeyField(Customer, column_name='customer')
-    address = ForeignKeyField(Address, column_name='address')
-    message = TextField()
-    created = DateTimeField(default=datetime.now)
-    released = BooleanField(default=False)
-    start_date = DateField(null=True, default=None)
-    end_date = DateField(null=True, default=None)
+    customer = JSONField(ForeignKeyField, Customer, column_name='customer')
+    address = JSONField(ForeignKeyField, Address, column_name='address')
+    message = JSONField(TextField)
+    created = JSONField(DateTimeField, default=datetime.now)
+    released = JSONField(BooleanField, default=False)
+    start_date = JSONField(DateField, null=True, default=None, key='startDate')
+    end_date = JSONField(DateField, null=True, default=None, key='endDate')
 
     @classmethod
     def add(cls, customer, address, message):
@@ -302,14 +303,14 @@ class DamageReport(_ApplicationModel):
     class Meta:
         table_name = 'damage_report'
 
-    customer = ForeignKeyField(Customer, column_name='customer')
-    address = ForeignKeyField(Address, column_name='address')
-    message = TextField()
-    name = CharField(255)
-    contact = CharField(255, null=True, default=None)
-    damage_type = CharField(255)
-    timestamp = DateTimeField(default=datetime.now)
-    checked = BooleanField(default=False)
+    customer = JSONField(ForeignKeyField, Customer, column_name='customer')
+    address = JSONField(ForeignKeyField, Address, column_name='address')
+    message = JSONField(TextField)
+    name = JSONField(CharField, 255)
+    contact = JSONField(CharField, 255, null=True, default=None)
+    damage_type = JSONField(CharField, 255, 'damageType')
+    timestamp = JSONField(DateTimeField, default=datetime.now)
+    checked = JSONField(BooleanField, default=False)
 
     @classmethod
     def from_dict(cls, customer, address, dictionary):
@@ -343,9 +344,9 @@ class ProxyHost(_ApplicationModel):
 class Screenshot(_ApplicationModel):
     """Stores screenshots."""
 
-    uuid = UUID4Field()
-    customer = ForeignKeyField(Customer, column_name='customer')
-    address = ForeignKeyField(Address, column_name='address')
+    uuid = JSONField(UUIDField, default=uuid4)
+    customer = JSONField(ForeignKeyField, Customer, column_name='customer')
+    address = JSONField(ForeignKeyField, Address, column_name='address')
     _bytes = BlobField(column_name='bytes')
 
     @classmethod
@@ -406,11 +407,11 @@ class ScreenshotLog(_ApplicationModel):
     class Meta:
         table_name = 'screenshot_log'
 
-    uuid = UUID4Field(default=None)
-    customer = ForeignKeyField(Customer, column_name='customer')
-    address = ForeignKeyField(Address, column_name='address')
-    begin = DateTimeField(default=datetime.now)
-    end = DateTimeField(null=True)
+    uuid = JSONField(UUIDField)
+    customer = JSONField(ForeignKeyField, Customer, column_name='customer')
+    address = JSONField(ForeignKeyField, Address, column_name='address')
+    begin = JSONField(DateTimeField, default=datetime.now)
+    end = JSONField(DateTimeField, null=True)
 
     @classmethod
     def add(cls, uuid, customer, address):
