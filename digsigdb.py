@@ -203,7 +203,7 @@ class CleaningUser(_ApplicationModel):
 
         raise DuplicateUserError()
 
-    def to_dict(self, *args, short=False, **kwargs):
+    def to_json(self, short=False, **kwargs):
         """Returns a JSON-ish dictionary."""
         if short:
             if self.type_ is None:
@@ -211,7 +211,7 @@ class CleaningUser(_ApplicationModel):
 
             return {'name': self.name, 'type': self.type_}
 
-        return super().to_dict(*args, **kwargs)
+        return super().to_json(**kwargs)
 
 
 class CleaningDate(_ApplicationModel):
@@ -244,17 +244,17 @@ class CleaningDate(_ApplicationModel):
 
             yield cleaning_date
 
-    def to_dict(self, *args, short=False, **kwargs):
+    def to_json(self, short=False, **kwargs):
         """Returns a JSON compliant dictionary."""
-        user = self.user.to_dict(short=short)
+        user = self.user.to_json(short=short)
 
         if short:
             return {'timestamp': self.timestamp.isoformat(), 'user': user}
 
-        dictionary = super().to_dict(*args, **kwargs)
-        dictionary['user'] = user
-        dictionary['address'] = self.address.to_dict(autofields=False)
-        return dictionary
+        json = super().to_json(**kwargs)
+        json['user'] = user
+        json['address'] = self.address.to_json(autofields=False)
+        return json
 
 
 class TenantMessage(_ApplicationModel):
@@ -286,14 +286,14 @@ class TenantMessage(_ApplicationModel):
         """Creates a new entry for the respective terminal."""
         return cls.add(terminal.customer, terminal.address, message)
 
-    def to_dict(self, *args, address=True, **kwargs):
+    def to_json(self, address=True, **kwargs):
         """Adds the address to the dictionary."""
-        dictionary = super().to_dict(*args, **kwargs)
+        json = super().to_json(**kwargs)
 
         if address:
-            dictionary['address'] = self.address.to_dict()
+            json['address'] = self.address.to_json()
 
-        return dictionary
+        return json
 
 
 class DamageReport(_ApplicationModel):
@@ -313,23 +313,23 @@ class DamageReport(_ApplicationModel):
     JSON_KEYS = {'damageType': damage_type}
 
     @classmethod
-    def from_dict(cls, customer, address, dictionary):
+    def from_json(cls, json, customer, address):
         """Creates a new entry from the respective
         customer, address and dictionary.
         """
-        record = super().from_dict(dictionary)
+        record = super().from_json(json)
         record.customer = customer
         record.address = address
         return record
 
-    def to_dict(self, *args, address=True, **kwargs):
+    def to_json(self, address=True, **kwargs):
         """Returns a JSON-ish dictionary."""
-        dictionary = super().to_dict(*args, **kwargs)
+        json = super().to_json(**kwargs)
 
         if address:
-            dictionary['address'] = self.address.to_dict()
+            json['address'] = self.address.to_json()
 
-        return dictionary
+        return json
 
 
 class ProxyHost(_ApplicationModel):
