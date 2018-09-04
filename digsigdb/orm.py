@@ -3,7 +3,7 @@
 Provides ORM models for digital signage
 data that is not part of dscms4.
 """
-from datetime import datetime, timedelta
+from datetime import datetime
 from uuid import uuid4
 
 from peewee import ForeignKeyField, TextField, DateTimeField, BooleanField, \
@@ -274,18 +274,43 @@ class TenantMessage(_ApplicationModel):
         return cls.add(terminal.customer, terminal.address, message)
 
     @classmethod
-    def dom_for_terminal(cls, terminal):
-        """Returns the DOM for the respective terminal."""
-        return cls.dom_for_customer_address(
-            terminal.customer, terminal.address)
+    def by_customer_address(cls, customer, address, released=True):
+        """Yields records of the respective customer and address."""
+        condition = cls.released == 1 if released else True
+        condition &= cls.customer == customer
+        condition &= cls.address == address
+        return cls.select().where(condition)
 
     @classmethod
-    def dom_for_customer_address(cls, customer, address):
+    def json_for_terminal(cls, terminal, released=True):
+        """Returns a JSON list for the respective terminal."""
+        return cls.json_for_customer_address(
+            terminal.customer, terminal.address, released=released)
+
+    @classmethod
+    def json_for_customer_address(cls, customer, address, released=True):
+        """Returns a JSON list for the respective customer and address."""
+        json = []
+
+        for record in cls.by_customer_address(
+                customer, address, released=released):
+            json.append(record.to_json())
+
+        return json
+
+    @classmethod
+    def dom_for_terminal(cls, terminal, released=True):
+        """Returns the DOM for the respective terminal."""
+        return cls.dom_for_customer_address(
+            terminal.customer, terminal.address, released=released)
+
+    @classmethod
+    def dom_for_customer_address(cls, customer, address, released=True):
         """Returns the dom for the respective customer and address."""
         xml = dom.tenant2tenant()
 
-        for record in cls.select().where(
-                (cls.customer == customer) & (cls.address == address)):
+        for record in cls.by_customer_address(
+                customer, address, released=released):
             xml.message.append(record.to_dom())
 
         return xml
