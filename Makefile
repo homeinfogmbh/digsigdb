@@ -20,4 +20,4 @@ push:
 	@ git push
 
 dom:
-	@ pyxbgen -u files/xsd/tenant_message.xsd -m dom --module-prefix=digsigdb
+	@ pyxbgen -u files/xsd/digsigdb.xsd -m dom --module-prefix=digsigdb

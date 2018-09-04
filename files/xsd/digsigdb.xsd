@@ -9,6 +9,34 @@ Maintainer: Richard Neumann <r dot neumann at homeinfo fullstop de>
 <xs:schema  xmlns="http://xml.homeinfo.de/schema/digsigdb"
             xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0"
             targetNamespace="http://xml.homeinfo.de/schema/digsigdb">
+
+    <xs:element name="tenant2tenant" type="TenantToTenant">
+        <xs:annotation>
+            <xs:documentation xml:lang="de">
+                Mieter-zu-Mieter Nachrichten.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+
+    <xs:complexType name="TenantToTenant">
+        <xs:annotation>
+            <xs:documentation xml:lang="de">
+                Mieter-zu-Mieter Nachrichten.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="message" type="TenantMessage" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation xml:lang="de">
+                      Mieter-zu-Mieter Nachrichten.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+
     <xs:complexType name="TenantMessage">
         <xs:annotation>
             <xs:documentation xml:lang="de">

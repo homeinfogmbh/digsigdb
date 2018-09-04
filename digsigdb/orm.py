@@ -271,6 +271,23 @@ class TenantMessage(_ApplicationModel):
         """Creates a new entry for the respective terminal."""
         return cls.add(terminal.customer, terminal.address, message)
 
+    @classmethod
+    def dom_for_terminal(cls, terminal):
+        """Returns the DOM for the respective terminal."""
+        return cls.dom_for_customer_address(
+            terminal.customer, terminal.address)
+
+    @classmethod
+    def dom_for_customer_address(cls, customer, address):
+        """Returns the dom for the respective customer and address."""
+        xml = dom.tenant2tenant()
+
+        for record in cls.select().where(
+                (cls.customer == customer) & (cls.address == address)):
+            xml.message.append(record.to_dom())
+
+        return xml
+
     def to_json(self, address=True, **kwargs):
         """Adds the address to the dictionary."""
         json = super().to_json(**kwargs)
@@ -282,7 +299,7 @@ class TenantMessage(_ApplicationModel):
 
     def to_dom(self):
         """Returns the tenant message as XML DOM."""
-        xml = orm.TenantMessage(self.message)
+        xml = dom.TenantMessage(self.message)
         xml.created = self.created
         xml.released = self.released
         xml.startDate = self.start_date
