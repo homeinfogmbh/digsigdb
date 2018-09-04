@@ -15,10 +15,10 @@ from mimeutil import mimetype
 from peeweeplus import MySQLDatabase, JSONModel, CascadingFKField
 from terminallib import Terminal
 
+from digsigdb.exceptions import DuplicateUserError
+
 
 __all__ = [
-    'DuplicateUserError',
-    'refresh_termstats',
     'Command',
     'Statistics',
     'LatestStats',
@@ -31,22 +31,6 @@ __all__ = [
 
 CONFIG = INIParser('/etc/digsigdb.conf')
 DATABASE = MySQLDatabase.from_config(CONFIG['db'])
-
-
-class DuplicateUserError(Exception):
-    """Indicates a duplicate user entry."""
-
-    pass
-
-
-def refresh_termstats(truncate=365):
-    """Refreshes the terminal statistics, truncating the statistics
-    entries to the amount of days specified by truncate beforehand.
-    """
-
-    tdelta = timedelta(days=truncate)
-    Statistics.truncate(tdelta)
-    LatestStats.refresh()
 
 
 class _ApplicationModel(JSONModel):

@@ -1,8 +1,8 @@
 FILE_LIST = ./.installed_files.txt
 
-.PHONY: pull push clean install uninstall
+.PHONY: pull push clean dom install uninstall
 
-default: | pull clean install
+default: | pull clean dom install
 
 install:
 	@ ./setup.py install --record $(FILE_LIST)
@@ -18,3 +18,6 @@ pull:
 
 push:
 	@ git push
+
+dom:
+	@ pyxbgen -u files/xsd/presentation.xsd -m dom --module-prefix=digsigdb

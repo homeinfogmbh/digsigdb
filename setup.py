@@ -11,7 +11,7 @@ setup(
     maintainer='Richard Neumann',
     maintainer_email='<r dot neumann at homeinfo priod de>',
     requires=['mdb'],
-    py_modules=['digsigdb'],
+    packages=['digsigdb'],
     scripts=['files/chkstats', 'files/refresh-termstats'],
     data_files=[
         ('/usr/lib/systemd/system',
