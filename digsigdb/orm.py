@@ -27,7 +27,9 @@ __all__ = [
     'CleaningDate',
     'TenantMessage',
     'DamageReport',
-    'ProxyHost']
+    'ProxyHost',
+    'Screenshot',
+    'ScreenshotLog']
 
 
 CONFIG = INIParser('/etc/digsigdb.conf')
