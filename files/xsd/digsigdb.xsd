@@ -52,21 +52,21 @@ Maintainer: Richard Neumann <r dot neumann at homeinfo fullstop de>
                   </xs:documentation>
               </xs:annotation>
           </xs:attribute>
-          <xs:attribute name="released" type="xs:boolean" use="required">
+          <xs:attribute name="released" type="xs:boolean">
               <xs:annotation>
                   <xs:documentation xml:lang="de">
                       Freigabe-Flag.
                   </xs:documentation>
               </xs:annotation>
           </xs:attribute>
-          <xs:attribute name="startDate" type="xs:date" use="required">
+          <xs:attribute name="startDate" type="xs:date">
               <xs:annotation>
                   <xs:documentation xml:lang="de">
                       Datum des Anzeigebeginns.
                   </xs:documentation>
               </xs:annotation>
           </xs:attribute>
-          <xs:attribute name="endDate" type="xs:date" use="required">
+          <xs:attribute name="endDate" type="xs:date">
               <xs:annotation>
                   <xs:documentation xml:lang="de">
                       Datum des Anzeigeendes.
