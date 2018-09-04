@@ -15,6 +15,7 @@ from mimeutil import mimetype
 from peeweeplus import MySQLDatabase, JSONModel, CascadingFKField
 from terminallib import Terminal
 
+from digsigdb import dom
 from digsigdb.exceptions import DuplicateUserError
 
 
@@ -278,6 +279,15 @@ class TenantMessage(_ApplicationModel):
             json['address'] = self.address.to_json()
 
         return json
+
+    def to_dom(self):
+        """Returns the tenant message as XML DOM."""
+        xml = orm.TenantMessage(self.message)
+        xml.created = self.created
+        xml.released = self.released
+        xml.startDate = self.start_date
+        xml.endDate = self.end_date
+        return xml
 
 
 class DamageReport(_ApplicationModel):
