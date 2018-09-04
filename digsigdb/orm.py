@@ -290,13 +290,8 @@ class TenantMessage(_ApplicationModel):
     @classmethod
     def json_for_customer_address(cls, customer, address, released=True):
         """Returns a JSON list for the respective customer and address."""
-        json = []
-
-        for record in cls.by_customer_address(
-                customer, address, released=released):
-            json.append(record.to_json())
-
-        return json
+        return [record.to_json() for record in cls.by_customer_address(
+            customer, address, released=released)]
 
     @classmethod
     def dom_for_terminal(cls, terminal, released=True):
