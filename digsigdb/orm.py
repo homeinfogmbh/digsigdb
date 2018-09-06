@@ -257,7 +257,6 @@ class TenantMessage(_ApplicationModel):
     released = BooleanField(default=False)
     start_date = DateField(null=True, default=None)
     end_date = DateField(null=True, default=None)
-    JSON_KEYS = {'startDate': start_date, 'endDate': end_date}
 
     @classmethod
     def add(cls, customer, address, message):
@@ -343,7 +342,6 @@ class DamageReport(_ApplicationModel):
     damage_type = CharField(255)
     timestamp = DateTimeField(default=datetime.now)
     checked = BooleanField(default=False)
-    JSON_KEYS = {'damageType': damage_type}
 
     @classmethod
     def from_json(cls, json, customer, address):
