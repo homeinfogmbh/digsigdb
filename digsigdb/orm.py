@@ -259,6 +259,14 @@ class TenantMessage(_ApplicationModel):
     end_date = DateField(null=True, default=None)
 
     @classmethod
+    def select_active(cls):
+        """Returns a condition for active messages."""
+        today = date.today()
+        condition = (cls.start_date >> None) | (cls.start_date <= today)
+        condition &= (cls.end_date >> None) | (cls.end_date >= today)
+        return condition
+
+    @classmethod
     def add(cls, customer, address, message):
         """Creates a new entry for the respective customer and address."""
         record = cls()
@@ -276,14 +284,22 @@ class TenantMessage(_ApplicationModel):
     def by_customer_address(cls, customer, address, released=True,
                             active=True):
         """Yields records of the respective customer and address."""
-        condition = cls.released == 1 if released else True
-        condition &= cls.customer == customer
+        condition = cls.customer == customer
         condition &= cls.address == address
-        today = date.today()
 
-        if active:
-            condition &= (cls.start_date >> None) | (cls.start_date <= today)
-            condition &= (cls.end_date >> None) | (cls.end_date >= today)
+        if released is not None:
+            if released:
+                condition &= cls.released == 1
+            else:
+                condition &= cls.released == 0
+
+        if active is not None:
+            today = date.today()
+
+            if active:
+                condition &= cls.select_active()
+            else:
+                condition &= ~cls.select_active()
 
         return cls.select().where(condition)
 
