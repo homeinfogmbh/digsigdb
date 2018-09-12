@@ -259,14 +259,6 @@ class TenantMessage(_ApplicationModel):
     end_date = DateField(null=True, default=None)
 
     @classmethod
-    def select_active(cls):
-        """Returns a condition for active messages."""
-        today = date.today()
-        condition = (cls.start_date >> None) | (cls.start_date <= today)
-        condition &= (cls.end_date >> None) | (cls.end_date >= today)
-        return condition
-
-    @classmethod
     def add(cls, customer, address, message):
         """Creates a new entry for the respective customer and address."""
         record = cls()
@@ -281,60 +273,15 @@ class TenantMessage(_ApplicationModel):
         return cls.add(terminal.customer, terminal.address, message)
 
     @classmethod
-    def by_customer_address(cls, customer, address, released=True,
-                            active=True):
-        """Yields records of the respective customer and address."""
-        condition = cls.customer == customer
-        condition &= cls.address == address
-
-        if released is not None:
-            if released:
-                condition &= cls.released == 1
-            else:
-                condition &= cls.released == 0
-
-        if active is not None:
-            today = date.today()
-
-            if active:
-                condition &= cls.select_active()
-            else:
-                condition &= ~cls.select_active()
-
+    def for_terminal(cls, terminal):
+        """Yields released, active records for the respective terminal."""
+        condition = cls.customer == terminal.customer
+        condition &= cls.address == terminal.address
+        condition &= cls.released == 1
+        today = date.today()
+        condition &= (cls.start_date >> None) | (cls.start_date <= today)
+        condition &= (cls.end_date >> None) | (cls.end_date >= today)
         return cls.select().where(condition)
-
-    @classmethod
-    def json_for_customer_address(cls, customer, address, released=True,
-                                  active=True):
-        """Returns a JSON list for the respective customer and address."""
-        return [record.to_json() for record in cls.by_customer_address(
-            customer, address, released=released, active=active)]
-
-    @classmethod
-    def json_for_terminal(cls, terminal, released=True, active=True):
-        """Returns a JSON list for the respective terminal."""
-        return cls.json_for_customer_address(
-            terminal.customer, terminal.address, released=released,
-            active=active)
-
-    @classmethod
-    def dom_for_terminal(cls, terminal, released=True, active=True):
-        """Returns the DOM for the respective terminal."""
-        return cls.dom_for_customer_address(
-            terminal.customer, terminal.address, released=released,
-            active=active)
-
-    @classmethod
-    def dom_for_customer_address(cls, customer, address, released=True,
-                                 active=True):
-        """Returns the dom for the respective customer and address."""
-        xml = dom.tenant2tenant()
-
-        for record in cls.by_customer_address(
-                customer, address, released=released, active=active):
-            xml.message.append(record.to_dom())
-
-        return xml
 
     @property
     def active(self):
