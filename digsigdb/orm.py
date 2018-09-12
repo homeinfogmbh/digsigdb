@@ -3,7 +3,7 @@
 Provides ORM models for digital signage
 data that is not part of dscms4.
 """
-from datetime import datetime
+from datetime import datetime, date
 from uuid import uuid4
 
 from peewee import ForeignKeyField, TextField, DateTimeField, BooleanField, \
@@ -273,41 +273,60 @@ class TenantMessage(_ApplicationModel):
         return cls.add(terminal.customer, terminal.address, message)
 
     @classmethod
-    def by_customer_address(cls, customer, address, released=True):
+    def by_customer_address(cls, customer, address, released=True,
+                            active=True):
         """Yields records of the respective customer and address."""
         condition = cls.released == 1 if released else True
         condition &= cls.customer == customer
         condition &= cls.address == address
+        today = date.today()
+
+        if active:
+            condition &= (cls.start_date >> None) | (cls.start_date <= today)
+            condition &= (cls.end_date >> None) | (cls.end_date >= today)
+
         return cls.select().where(condition)
 
     @classmethod
-    def json_for_terminal(cls, terminal, released=True):
-        """Returns a JSON list for the respective terminal."""
-        return cls.json_for_customer_address(
-            terminal.customer, terminal.address, released=released)
-
-    @classmethod
-    def json_for_customer_address(cls, customer, address, released=True):
+    def json_for_customer_address(cls, customer, address, released=True,
+                                  active=True):
         """Returns a JSON list for the respective customer and address."""
         return [record.to_json() for record in cls.by_customer_address(
-            customer, address, released=released)]
+            customer, address, released=released, active=active)]
 
     @classmethod
-    def dom_for_terminal(cls, terminal, released=True):
+    def json_for_terminal(cls, terminal, released=True, active=True):
+        """Returns a JSON list for the respective terminal."""
+        return cls.json_for_customer_address(
+            terminal.customer, terminal.address, released=released,
+            active=active)
+
+    @classmethod
+    def dom_for_terminal(cls, terminal, released=True, active=True):
         """Returns the DOM for the respective terminal."""
         return cls.dom_for_customer_address(
-            terminal.customer, terminal.address, released=released)
+            terminal.customer, terminal.address, released=released,
+            active=active)
 
     @classmethod
-    def dom_for_customer_address(cls, customer, address, released=True):
+    def dom_for_customer_address(cls, customer, address, released=True,
+                                 active=True):
         """Returns the dom for the respective customer and address."""
         xml = dom.tenant2tenant()
 
         for record in cls.by_customer_address(
-                customer, address, released=released):
+                customer, address, released=released, active=active):
             xml.message.append(record.to_dom())
 
         return xml
+
+    @property
+    def active(self):
+        """Determines whether the message is active."""
+        today = date.today()
+        match_start = self.start_date is None or self.start_date <= today
+        match_end = self.end_date is None or self.end_date >= today
+        return match_start and match_end
 
     def to_json(self, address=True, **kwargs):
         """Adds the address to the dictionary."""
