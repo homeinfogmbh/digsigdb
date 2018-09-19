@@ -3,11 +3,17 @@
 Provides ORM models for digital signage
 data that is not part of dscms4.
 """
-from datetime import datetime, date
+from datetime import datetime
 from uuid import uuid4
 
-from peewee import ForeignKeyField, TextField, DateTimeField, BooleanField, \
-    IntegerField, CharField, DateField, BlobField, UUIDField
+from peewee import BlobField
+from peewee import BooleanField
+from peewee import CharField
+from peewee import DateTimeField
+from peewee import ForeignKeyField
+from peewee import IntegerField
+from peewee import TextField
+from peewee import UUIDField
 
 from configlib import INIParser
 from mdb import Address, Customer
@@ -15,7 +21,6 @@ from mimeutil import mimetype
 from peeweeplus import MySQLDatabase, JSONModel, CascadingFKField
 from terminallib import Terminal
 
-from digsigdb import dom
 from digsigdb.exceptions import DuplicateUserError
 
 
@@ -25,7 +30,6 @@ __all__ = [
     'LatestStats',
     'CleaningUser',
     'CleaningDate',
-    'TenantMessage',
     'DamageReport',
     'ProxyHost',
     'Screenshot',
@@ -242,72 +246,6 @@ class CleaningDate(_ApplicationModel):
         json['user'] = user
         json['address'] = self.address.to_json(autofields=False)
         return json
-
-
-class TenantMessage(_ApplicationModel):
-    """Tenant to tenant messages."""
-
-    class Meta:
-        table_name = 'tenant_message'
-
-    customer = ForeignKeyField(Customer, column_name='customer')
-    address = ForeignKeyField(Address, column_name='address')
-    message = TextField()
-    created = DateTimeField(default=datetime.now)
-    released = BooleanField(default=False)
-    start_date = DateField(null=True, default=None)
-    end_date = DateField(null=True, default=None)
-
-    @classmethod
-    def add(cls, customer, address, message):
-        """Creates a new entry for the respective customer and address."""
-        record = cls()
-        record.customer = customer
-        record.address = address
-        record.message = message
-        return record
-
-    @classmethod
-    def from_terminal(cls, terminal, message):
-        """Creates a new entry for the respective terminal."""
-        return cls.add(terminal.customer, terminal.address, message)
-
-    @classmethod
-    def for_terminal(cls, terminal):
-        """Yields released, active records for the respective terminal."""
-        condition = cls.customer == terminal.customer
-        condition &= cls.address == terminal.address
-        condition &= cls.released == 1
-        today = date.today()
-        condition &= (cls.start_date >> None) | (cls.start_date <= today)
-        condition &= (cls.end_date >> None) | (cls.end_date >= today)
-        return cls.select().where(condition)
-
-    @property
-    def active(self):
-        """Determines whether the message is active."""
-        today = date.today()
-        match_start = self.start_date is None or self.start_date <= today
-        match_end = self.end_date is None or self.end_date >= today
-        return match_start and match_end
-
-    def to_json(self, address=True, **kwargs):
-        """Adds the address to the dictionary."""
-        json = super().to_json(**kwargs)
-
-        if address:
-            json['address'] = self.address.to_json()
-
-        return json
-
-    def to_dom(self):
-        """Returns the tenant message as XML DOM."""
-        xml = dom.TenantMessage(self.message)
-        xml.created = self.created
-        xml.released = self.released
-        xml.startDate = self.start_date
-        xml.endDate = self.end_date
-        return xml
 
 
 class DamageReport(_ApplicationModel):
