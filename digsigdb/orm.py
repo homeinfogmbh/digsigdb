@@ -12,7 +12,6 @@ from peewee import CharField
 from peewee import DateTimeField
 from peewee import ForeignKeyField
 from peewee import IntegerField
-from peewee import TextField
 from peewee import UUIDField
 
 from configlib import INIParser
@@ -30,7 +29,6 @@ __all__ = [
     'LatestStats',
     'CleaningUser',
     'CleaningDate',
-    'DamageReport',
     'ProxyHost',
     'Screenshot',
     'ScreenshotLog']
@@ -245,41 +243,6 @@ class CleaningDate(_ApplicationModel):
         json = super().to_json(**kwargs)
         json['user'] = user
         json['address'] = self.address.to_json(autofields=False)
-        return json
-
-
-class DamageReport(_ApplicationModel):
-    """Damage reports."""
-
-    class Meta:
-        table_name = 'damage_report'
-
-    customer = ForeignKeyField(Customer, column_name='customer')
-    address = ForeignKeyField(Address, column_name='address')
-    message = TextField()
-    name = CharField(255)
-    contact = CharField(255, null=True, default=None)
-    damage_type = CharField(255)
-    timestamp = DateTimeField(default=datetime.now)
-    checked = BooleanField(default=False)
-
-    @classmethod
-    def from_json(cls, json, customer, address):
-        """Creates a new entry from the respective
-        customer, address and dictionary.
-        """
-        record = super().from_json(json)
-        record.customer = customer
-        record.address = address
-        return record
-
-    def to_json(self, address=True, **kwargs):
-        """Returns a JSON-ish dictionary."""
-        json = super().to_json(**kwargs)
-
-        if address:
-            json['address'] = self.address.to_json()
-
         return json
 
 
