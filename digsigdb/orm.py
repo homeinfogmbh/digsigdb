@@ -83,7 +83,7 @@ class Statistics(_ApplicationModel):
     """Usage statistics entries."""
 
     customer = ForeignKeyField(Customer, column_name='customer')
-    vid = IntegerField()
+    vid = IntegerField(null=True, default=None)
     tid = IntegerField(null=True, default=None)
     document = CharField(255)
     timestamp = DateTimeField()
@@ -127,7 +127,9 @@ class Statistics(_ApplicationModel):
     def to_csv(self, sep=','):
         """Converts the record into a CSV entry."""
         timestamp = self.timestamp.isoformat()
-        fields = [timestamp, self.vid, self.tid, self.document]
+        vid = str(self.vid) if self.vid is not None else ''
+        tid = str(self.tid) if self.tid is not None else ''
+        fields = (timestamp, vid, tid, self.document)
         return sep.join(fields)
 
 
