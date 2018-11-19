@@ -29,6 +29,7 @@ __all__ = [
     'LatestStats',
     'CleaningUser',
     'CleaningDate',
+    'CleaningAnnotation',
     'ProxyHost',
     'Screenshot',
     'ScreenshotLog']
@@ -41,7 +42,7 @@ DATABASE = MySQLDatabase.from_config(CONFIG['db'])
 class _ApplicationModel(JSONModel):
     """Abstract common model."""
 
-    class Meta:
+    class Meta:     # pylint: disable=C0111
         database = DATABASE
         schema = database.database
 
@@ -127,7 +128,7 @@ class Statistics(_ApplicationModel):
 class LatestStats(_ApplicationModel):
     """Stores the last statistics of the respective terminal."""
 
-    class Meta:
+    class Meta:     # pylint: disable=C0111
         table_name = 'latest_stats'
 
     terminal = CascadingFKField(Terminal, column_name='terminal')
@@ -160,7 +161,7 @@ class LatestStats(_ApplicationModel):
 class CleaningUser(_ApplicationModel):
     """Accounts for valet service employees."""
 
-    class Meta:
+    class Meta:     # pylint: disable=C0111
         table_name = 'cleaning_user'
 
     name = CharField(64)
@@ -206,7 +207,7 @@ class CleaningUser(_ApplicationModel):
 class CleaningDate(_ApplicationModel):
     """Cleaning chart entries."""
 
-    class Meta:
+    class Meta:     # pylint: disable=C0111
         table_name = 'cleaning_date'
 
     user = ForeignKeyField(CleaningUser, column_name='user')
@@ -214,13 +215,19 @@ class CleaningDate(_ApplicationModel):
     timestamp = DateTimeField()
 
     @classmethod
-    def add(cls, user, address):
+    def add(cls, user, address, annotations=None):
         """Adds a new cleaning record."""
         record = cls()
         record.user = user
         record.address = address
         record.timestamp = datetime.now()
         record.save()
+
+        if annotations:
+            for annotation in annotations:
+                annotation = CleaningAnnotation(text=annotation)
+                annotation.save()
+
         return record
 
     @classmethod
@@ -243,13 +250,27 @@ class CleaningDate(_ApplicationModel):
         json = super().to_json(**kwargs)
         json['user'] = user
         json['address'] = self.address.to_json(autofields=False)
+        json['annotations'] = [
+            annotation.text for annotation in self.annotations]
         return json
+
+
+class CleaningAnnotation(_ApplicationModel):
+    """Optional annotations for cleaning log entries."""
+
+    class Meta:     # pylint: disable=C0111
+        table_name = 'cleaning_annotation'
+
+    cleaning_date = ForeignKeyField(
+        CleaningDate, column_name='cleaning_date', backref='annotations',
+        on_delete='CASCADE')
+    text = CharField(255)
 
 
 class ProxyHost(_ApplicationModel):
     """Valid proxy hosts."""
 
-    class Meta:
+    class Meta:     # pylint: disable=C0111
         table_name = 'proxy_hosts'
 
     hostname = CharField(255)
@@ -318,7 +339,7 @@ class Screenshot(_ApplicationModel):
 class ScreenshotLog(_ApplicationModel):
     """Logs displayed screenshots."""
 
-    class Meta:
+    class Meta:     # pylint: disable=C0111
         table_name = 'screenshot_log'
 
     uuid = UUIDField()
