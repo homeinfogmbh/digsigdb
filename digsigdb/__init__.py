@@ -3,6 +3,7 @@
 
 from digsigdb.exceptions import DuplicateUserError
 from digsigdb.functions import refresh_termstats
+from digsigdb.orm import CleaningAnnotation
 from digsigdb.orm import CleaningDate
 from digsigdb.orm import CleaningUser
 from digsigdb.orm import Command
@@ -21,6 +22,7 @@ __all__ = [
     'LatestStats',
     'CleaningUser',
     'CleaningDate',
+    'CleaningAnnotation',
     'ProxyHost',
     'Screenshot',
     'ScreenshotLog']
