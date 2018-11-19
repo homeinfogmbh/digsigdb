@@ -124,6 +124,12 @@ class Statistics(_ApplicationModel):
 
         return Terminal.by_ids(self.customer.id, self.tid)
 
+    def to_csv(self, sep=','):
+        """Converts the record into a CSV entry."""
+        timestamp = self.timestamp.isoformat()
+        fields = [timestamp, self.vid, self.tid, self.document]
+        return sep.join(fields)
+
 
 class LatestStats(_ApplicationModel):
     """Stores the last statistics of the respective terminal."""
