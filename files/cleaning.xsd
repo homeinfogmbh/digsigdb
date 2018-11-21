@@ -6,7 +6,7 @@
   Maintainer: Richard Neumann <r dot neumann at homeinfo fullstop de>
 -->
 
-<xs:schema  xmlns="http://xml.homeinfo.de/schema/appcmd/cleaning"
+<xs:schema  xmlns="http://xml.homeinfo.de/schema/cleaning"
             xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0"
             targetNamespace="http://xml.homeinfo.de/schema/cleaning">
 
