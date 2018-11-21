@@ -20,6 +20,7 @@ from mimeutil import mimetype
 from peeweeplus import MySQLDatabase, JSONModel, CascadingFKField
 from terminallib import Terminal
 
+from digsigdb import dom
 from digsigdb.exceptions import DuplicateUserError
 
 
@@ -261,6 +262,19 @@ class CleaningDate(_ApplicationModel):
         json['annotations'] = [
             annotation.text for annotation in self.annotations]
         return json
+
+    def to_dom(self):
+        """Converts the ORM model into an XML DOM."""
+        xml = dom.Cleaning()
+        xml.timestamp = self.timestamp
+        user = dom.User(self.user.name)
+        user.type = self.user.type_
+        xml.user = user
+
+        for annotation in self.annotations:
+            xml.annotation.append(annotation.text)
+
+        return xml
 
 
 class CleaningAnnotation(_ApplicationModel):
