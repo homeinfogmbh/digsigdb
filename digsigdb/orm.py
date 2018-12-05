@@ -234,7 +234,8 @@ class CleaningDate(_ApplicationModel):
 
         if annotations:
             for annotation in annotations:
-                annotation = CleaningAnnotation(text=annotation)
+                annotation = CleaningAnnotation(
+                    cleaning_date=record, text=annotation)
                 annotation.save()
 
         return record
