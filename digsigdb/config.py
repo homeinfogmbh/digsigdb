@@ -1,10 +1,9 @@
 """Configuration parsing."""
 
-from configparser import ConfigParser
+from configlib import loadcfg
 
 
 __all__ = ['CONFIG']
 
 
-CONFIG = ConfigParser()
-CONFIG.read('/usr/local/etc/digsigdb.conf')
+CONFIG = loadcfg('digsigdb.conf')
