@@ -14,13 +14,13 @@ from peewee import ForeignKeyField
 from peewee import IntegerField
 from peewee import UUIDField
 
-from configlib import INIParser
 from mdb import Address, Customer
 from mimeutil import mimetype
 from peeweeplus import MySQLDatabase, JSONModel, CascadingFKField
 from terminallib import Terminal
 
 from digsigdb import dom
+from digsigdb.config import CONFIG
 from digsigdb.exceptions import DuplicateUserError
 
 
@@ -36,7 +36,6 @@ __all__ = [
     'ScreenshotLog']
 
 
-CONFIG = INIParser('/etc/digsigdb.conf')
 DATABASE = MySQLDatabase.from_config(CONFIG['db'])
 
 
