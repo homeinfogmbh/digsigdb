@@ -252,15 +252,18 @@ class CleaningDate(_ApplicationModel):
     def to_json(self, short=False, **kwargs):
         """Returns a JSON compliant dictionary."""
         user = self.user.to_json(short=short)
+        annotations = [annotation.text for annotation in self.annotations]
 
         if short:
-            return {'timestamp': self.timestamp.isoformat(), 'user': user}
+            return {
+                'timestamp': self.timestamp.isoformat(),
+                'user': user,
+                'annotations': annotations}
 
         json = super().to_json(**kwargs)
         json['user'] = user
         json['address'] = self.address.to_json(autofields=False)
-        json['annotations'] = [
-            annotation.text for annotation in self.annotations]
+        json['annotations'] = annotations
         return json
 
     def to_dom(self):
