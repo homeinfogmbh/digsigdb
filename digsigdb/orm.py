@@ -16,8 +16,8 @@ from peewee import UUIDField
 
 from mdb import Address, Customer
 from mimeutil import mimetype
-from peeweeplus import MySQLDatabase, JSONModel, CascadingFKField
-from terminallib import Terminal
+from peeweeplus import MySQLDatabase, JSONModel
+from terminallib import System
 
 from digsigdb import dom
 from digsigdb.config import CONFIG
@@ -27,7 +27,6 @@ from digsigdb.exceptions import DuplicateUserError
 __all__ = [
     'Command',
     'Statistics',
-    'LatestStats',
     'CleaningUser',
     'CleaningDate',
     'CleaningAnnotation',
@@ -82,21 +81,16 @@ class Command(_ApplicationModel):
 class Statistics(_ApplicationModel):
     """Usage statistics entries."""
 
-    customer = ForeignKeyField(Customer, column_name='customer')
-    vid = IntegerField(null=True, default=None)
-    tid = IntegerField(null=True, default=None)
+    system = ForeignKeyField(System, column_name='system', on_delete='CASCADE')
     document = CharField(255)
-    timestamp = DateTimeField()
+    timestamp = DateTimeField(default=datetime.now)
 
     @classmethod
-    def add(cls, customer, vid, tid, document):
+    def add(cls, system, document):
         """Adds a new statistics entry."""
         record = cls()
-        record.customer = customer
-        record.vid = vid
-        record.tid = tid
+        record.system = system
         record.document = document
-        record.timestamp = datetime.now()
         record.save()
         return record
 
@@ -107,63 +101,19 @@ class Statistics(_ApplicationModel):
         return cls.delete().where(cls.timestamp < timestamp).execute()
 
     @classmethod
-    def latest(cls, terminal):
+    def latest(cls, system):
         """Returns the latest statistics
-        record for the respective terminal.
+        record for the respective system.
         """
-        return cls.select().where(
-            (cls.customer == terminal.customer)
-            & (cls.tid == terminal.tid)).order_by(
-                cls.timestamp.desc()).get()
-
-    @property
-    def terminal(self):
-        """Returns the appropriate terminal."""
-        if self.tid is None:
-            return None
-
-        return Terminal.by_ids(self.customer.id, self.tid)
+        return cls.select().where(cls.system == system).order_by(
+            cls.timestamp.desc()).get()
 
     def to_csv(self, sep=','):
         """Converts the record into a CSV entry."""
+        address = self.system.location.address
         timestamp = self.timestamp.isoformat()
-        vid = str(self.vid) if self.vid is not None else ''
-        tid = str(self.tid) if self.tid is not None else ''
-        fields = (timestamp, vid, tid, self.document)
+        fields = (timestamp, str(address), self.document)
         return sep.join(fields)
-
-
-class LatestStats(_ApplicationModel):
-    """Stores the last statistics of the respective terminal."""
-
-    class Meta:     # pylint: disable=C0111
-        table_name = 'latest_stats'
-
-    terminal = CascadingFKField(Terminal, column_name='terminal')
-    statistics = CascadingFKField(
-        Statistics, column_name='statistics', null=True)
-
-    @classmethod
-    def refresh(cls, terminal=None):
-        """Refreshes the stats for the respective terminal."""
-        if terminal is None:
-            for terminal in Terminal:
-                cls.refresh(terminal=terminal)
-
-            return
-
-        try:
-            current = cls.get(cls.terminal == terminal)
-        except cls.DoesNotExist:
-            current = cls()
-            current.terminal = terminal
-
-        try:
-            current.statistics = Statistics.latest(terminal)
-        except Statistics.DoesNotExist:
-            current.delete_instance()
-        else:
-            current.save()
 
 
 class CleaningUser(_ApplicationModel):
