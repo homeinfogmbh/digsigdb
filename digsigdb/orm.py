@@ -25,7 +25,6 @@ from digsigdb.exceptions import DuplicateUserError
 
 
 __all__ = [
-    'Command',
     'Statistics',
     'CleaningUser',
     'CleaningDate',
@@ -44,38 +43,6 @@ class _ApplicationModel(JSONModel):
     class Meta:     # pylint: disable=C0111
         database = DATABASE
         schema = database.database
-
-
-class Command(_ApplicationModel):
-    """Command entries."""
-
-    customer = ForeignKeyField(Customer, column_name='customer')
-    vid = IntegerField()
-    task = CharField(16)
-    created = DateTimeField()
-    completed = DateTimeField(null=True, default=None)
-
-    @classmethod
-    def add(cls, customer, vid, task):
-        """Creates a new command task."""
-        try:
-            return cls.get(
-                (cls.customer == customer) & (cls.vid == vid) &
-                (cls.task == task))
-        except cls.DoesNotExist:
-            record = cls()
-            record.customer = customer
-            record.vid = vid
-            record.task = task
-            record.created = datetime.now()
-            record.save()
-            return record
-
-    def complete(self, force=False):
-        """Completes the command."""
-        if force or self.completed is None:
-            self.completed = datetime.now()
-            self.save()
 
 
 class Statistics(_ApplicationModel):

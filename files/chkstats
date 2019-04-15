@@ -1,99 +1,95 @@
 #! /usr/bin/env python3
 """chkstats.
 
-    Checks statistics for the respective terminal.
+    Checks statistics for the respective system.
 
 Usage:
-    chkstats <tid> <cid> [options]
+    chkstats <system> [options]
 
 Options:
     --warning=<days>, -w    Warning time period in days [default: 5].
     --critical=<days>, -c   Critical time period in days [default: 9].
 """
 from datetime import datetime, timedelta
-from sys import stderr, exit as exit_
+from sys import stderr, exit    # pylint: disable=W0622
 
 from docopt import docopt
 
 from syslib import script
-from terminallib import Terminal
+from terminallib import System
 
-from digsigdb import LatestStats
+from digsigdb import Statistics
 
 
 def parse_options(options):
     """Parses the options."""
 
-    try:
-        tid = int(options['<tid>'])
-    except ValueError:
-        print('Invalid terminal ID: {}.'.format(tid), file=stderr)
-        exit_(4)
+    system = options['<system>']
 
     try:
-        cid = int(options['<cid>'])
+        system = int(system)
     except ValueError:
-        print('Invalid customer ID: {}.'.format(tid))
-        exit_(5)
+        print('Invalid system ID: {}.'.format(system), file=stderr)
+        exit(4)
+
+    warning = options['--warning']
 
     try:
-        warning = int(options['--warning'])
+        warning = int(warning)
     except ValueError:
         print('Invalid amout of warning days: {}.'.format(warning),
               file=stderr)
-        exit_(6)
+        exit(5)
     else:
         warning = timedelta(days=warning)
 
+    critical = options['--critical']
+
     try:
-        critical = int(options['--critical'])
+        critical = int(critical)
     except ValueError:
         print('Invalid amout of critical days: {}.'.format(critical),
               file=stderr)
-        exit_(7)
+        exit(6)
     else:
         critical = timedelta(days=critical)
 
     try:
-        terminal = Terminal.by_ids(cid, tid)
-    except Terminal.DoesNotExist:
-        print('No such terminal.', file=stderr)
-        exit_(8)
-    else:
-        if terminal.deployed is None:
-            print('Terminal is not deployed.', file=stderr)
-            exit(9)
+        system = System[system]
+    except System.DoesNotExist:
+        print('No such system.', file=stderr)
+        exit(7)
 
-    return (terminal, warning, critical)
+    if system.location is None:
+        print('System is not deployed.', file=stderr)
+        exit(8)
+
+    return (system, warning, critical)
 
 
 @script
 def main(options):
-    """Checks the terminal's stats."""
+    """Checks the system's stats."""
 
-    terminal, warning, critical = parse_options(options)
+    system, warning, critical = parse_options(options)
     now = datetime.now()
 
     try:
-        latest = LatestStats.get(LatestStats.terminal == terminal)
-    except LatestStats.DoesNotExist:
-        last = terminal.deployed
+        latest = Statistics.latest(system)
+    except Statistics.DoesNotExist:
         print('Never.')
-    else:
-        if latest.statistics is None:
-            last = terminal.deployed
-            print('Never.')
-        else:
-            last = latest.statistics.timestamp
-            print(last)
+        exit(2)
+
+    last = latest.timestamp
+    print(last)
 
     if now - last <= warning:
-        return 0  # ok
+        exit(0)     # ok
     elif now - last <= critical:
-        return 1  # warning
+        exit(1)     # warning
 
-    return 2  # critical
+    exit(2)     # critical
 
 
 if __name__ == '__main__':
-    exit_(main(docopt(__doc__)))
+    main(docopt(__doc__))
