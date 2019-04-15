@@ -1,8 +1,0 @@
-[Unit]
-Description=Refresh terminals statistics every six hours
-
-[Timer]
-OnCalendar=0/6:00
-
-[Install]
-WantedBy=multi-user.target
