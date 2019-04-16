@@ -77,7 +77,7 @@ class Statistics(_ApplicationModel):
 
     def to_csv(self, sep=','):
         """Converts the record into a CSV entry."""
-        address = self.system.location.address
+        address = self.system.deployment.address
         timestamp = self.timestamp.isoformat()
         fields = (timestamp, str(address), self.document)
         return sep.join(fields)

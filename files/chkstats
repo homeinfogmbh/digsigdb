@@ -60,7 +60,7 @@ def parse_options(options):
         print('No such system.', file=stderr)
         exit(7)
 
-    if system.location is None:
+    if system.deployment is None:
         print('System is not deployed.', file=stderr)
         exit(8)
 
