@@ -139,6 +139,9 @@ class CleaningDate(_ApplicationModel):
 
     user = ForeignKeyField(CleaningUser, column_name='user')
     address = ForeignKeyField(Address, column_name='address')
+    deployment = ForeignKeyField(
+        Deployment, null=True, column_name='deployment', on_delete='CASCADE',
+        on_update='CASCADE')
     timestamp = DateTimeField()
 
     @classmethod
