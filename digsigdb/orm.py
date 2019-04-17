@@ -12,7 +12,7 @@ from peewee import ForeignKeyField
 
 from mdb import Address, Customer
 from peeweeplus import MySQLDatabase, JSONModel
-from terminallib import System
+from terminallib import Deployment
 
 from digsigdb import dom
 from digsigdb.config import CONFIG
@@ -48,15 +48,17 @@ class _ApplicationModel(JSONModel):
 class Statistics(_ApplicationModel):
     """Usage statistics entries."""
 
-    system = ForeignKeyField(System, column_name='system', on_delete='CASCADE')
+    deployment = ForeignKeyField(
+        Deployment, column_name='deployment', on_delete='CASCADE',
+        on_update='CASCADE')
     document = CharField(255)
     timestamp = DateTimeField(default=datetime.now)
 
     @classmethod
-    def add(cls, system, document):
+    def add(cls, deployment, document):
         """Adds a new statistics entry."""
         record = cls()
-        record.system = system
+        record.deployment = deployment
         record.document = document
         record.save()
         return record
@@ -68,16 +70,16 @@ class Statistics(_ApplicationModel):
         return cls.delete().where(cls.timestamp < timestamp).execute()
 
     @classmethod
-    def latest(cls, system):
+    def latest(cls, deployment):
         """Returns the latest statistics
-        record for the respective system.
+        record for the respective deployment.
         """
-        return cls.select().where(cls.system == system).order_by(
+        return cls.select().where(cls.deployment == deployment).order_by(
             cls.timestamp.desc()).get()
 
     def to_csv(self, sep=','):
         """Converts the record into a CSV entry."""
-        address = self.system.deployment.address
+        address = self.deployment.address
         timestamp = self.timestamp.isoformat()  # pylint: disable=E1101
         fields = (timestamp, str(address), self.document)
         return sep.join(fields)
