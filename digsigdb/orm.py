@@ -10,7 +10,7 @@ from peewee import CharField
 from peewee import DateTimeField
 from peewee import ForeignKeyField
 
-from mdb import Address, Customer
+from mdb import Customer
 from peeweeplus import MySQLDatabase, JSONModel
 from terminallib import Deployment
 
@@ -138,18 +138,17 @@ class CleaningDate(_ApplicationModel):
         table_name = 'cleaning_date'
 
     user = ForeignKeyField(CleaningUser, column_name='user')
-    address = ForeignKeyField(Address, column_name='address')
     deployment = ForeignKeyField(
         Deployment, null=True, column_name='deployment', on_delete='CASCADE',
         on_update='CASCADE')
     timestamp = DateTimeField()
 
     @classmethod
-    def add(cls, user, address, annotations=None):
+    def add(cls, user, deployment, annotations=None):
         """Adds a new cleaning record."""
         record = cls()
         record.user = user
-        record.address = address
+        record.deployment = deployment
         record.timestamp = datetime.now()
         record.save()
 
@@ -162,10 +161,10 @@ class CleaningDate(_ApplicationModel):
         return record
 
     @classmethod
-    def by_address(cls, address, limit=None):
+    def by_deployment(cls, deployment, limit=None):
         """Returns a dictionary for the respective address."""
         for counter, cleaning_date in enumerate(cls.select().where(
-                cls.address == address).order_by(cls.timestamp.desc())):
+                cls.deployment == deployment).order_by(cls.timestamp.desc())):
             if limit is not None and counter >= limit:
                 return
 
@@ -184,7 +183,7 @@ class CleaningDate(_ApplicationModel):
 
         json = super().to_json(**kwargs)
         json['user'] = user
-        json['address'] = self.address.to_json(autofields=False)
+        json['deployment'] = self.deployment.to_json(autofields=False)
         json['annotations'] = annotations
         return json
 
