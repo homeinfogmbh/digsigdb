@@ -13,8 +13,4 @@ setup(
     requires=['mdb'],
     packages=['digsigdb'],
     scripts=['files/chkstats'],
-    data_files=[
-        ('/usr/lib/systemd/system',
-         ['files/refresh-termstats.service',
-          'files/refresh-termstats.timer'])],
     description='Digital Sigange Database bindings.')
