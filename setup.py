@@ -12,7 +12,7 @@ setup(
     maintainer_email='<r dot neumann at homeinfo priod de>',
     requires=['mdb'],
     packages=['digsigdb'],
-    scripts=['files/chkstats', 'files/refresh-termstats'],
+    scripts=['files/chkstats'],
     data_files=[
         ('/usr/lib/systemd/system',
          ['files/refresh-termstats.service',
