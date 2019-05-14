@@ -170,21 +170,13 @@ class CleaningDate(_ApplicationModel):
 
             yield cleaning_date
 
-    def to_json(self, short=False, **kwargs):
+    def to_json(self, annotations=False, **kwargs):
         """Returns a JSON compliant dictionary."""
-        user = self.user.to_json(short=short)
-        annotations = [annotation.text for annotation in self.annotations]
-
-        if short:
-            return {
-                'timestamp': self.timestamp.isoformat(),
-                'user': user,
-                'annotations': annotations}
-
         json = super().to_json(**kwargs)
-        json['user'] = user
-        json['deployment'] = self.deployment.to_json(autofields=False)
-        json['annotations'] = annotations
+
+        if annotations:
+            json['annotations'] = [ann.text for ann in self.annotations]
+
         return json
 
     def to_dom(self):
