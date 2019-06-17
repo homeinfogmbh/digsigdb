@@ -77,11 +77,13 @@ class Statistics(_ApplicationModel):
         return cls.select().where(cls.deployment == deployment).order_by(
             cls.timestamp.desc()).get()
 
-    def to_csv(self, sep='|'):
+    def to_csv(self, sep=','):
         """Converts the record into a CSV entry."""
         address = self.deployment.address
         timestamp = self.timestamp.isoformat()  # pylint: disable=E1101
-        fields = (timestamp, str(address), self.document)
+        fields = (
+            timestamp, address.street, address.house_number, address.zip_code,
+            address.city, self.document)
         return sep.join(fields)
 
 
