@@ -1,12 +1,13 @@
 [Anjuta]
-Geometry=1920x983+26+23
+Maximized=1
+Geometry=1920x983+0+0
 
 [Execution]
 Run in terminal=2
 Working directories=../../.
 
 [File Loader]
-Files=../../digsigdb/config.py#1%%%../../files/cleaning.xsd#69
+Files=../../digsigdb/config.py#1%%%../../files/cleaning.xsd#69%%%../../digsigdb/orm.py#20
 
 [Document Manager]
 bookmarks=<?xml version="1.0" encoding="UTF-8"?>\n<bookmarks/>\n
