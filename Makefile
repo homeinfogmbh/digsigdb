@@ -1,11 +1,8 @@
 FILE_LIST = ./.installed_files.txt
 
-.PHONY: pull push clean generate-bindings install uninstall
+.PHONY: pull push clean install uninstall
 
-default: | pull clean generate-bindings install
-
-generate-bindings:
-	@ pyxbgen -u files/cleaning.xsd -m dom --module-prefix=digsigdb
+default: | pull clean install
 
 install:
 	@ ./setup.py install --record $(FILE_LIST)
