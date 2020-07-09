@@ -7,8 +7,8 @@ from datetime import datetime
 
 from peewee import CharField, DateTimeField, ForeignKeyField
 
+from hwdb import Deployment
 from peeweeplus import MySQLDatabase, JSONModel
-from terminallib import Deployment
 
 from digsigdb.config import CONFIG
 
