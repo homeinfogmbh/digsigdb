@@ -15,8 +15,8 @@ from sys import stderr, exit    # pylint: disable=W0622
 
 from docopt import docopt
 
+from hwdb import System
 from syslib import script
-from terminallib import System
 
 from digsigdb import Statistics
 
