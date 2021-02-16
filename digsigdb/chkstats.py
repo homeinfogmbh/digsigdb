@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 from hwdb import system
 
-from digsigdb import Statistics
+from digsigdb.orm import Statistics
 
 
 __all__ = ['main']
