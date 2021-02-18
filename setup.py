@@ -15,6 +15,5 @@ setup(
     maintainer_email='r.neumann@homeinfo.de',
     requires=['mdb'],
     packages=['digsigdb'],
-    entry_points={'console_scripts': ['hipsterd = digsigdb.chkstats:main']},
     description='Digital Sigange Database bindings.'
 )
