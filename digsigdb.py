@@ -8,15 +8,13 @@ from datetime import datetime
 from peewee import CharField, DateTimeField, ForeignKeyField
 
 from hwdb import Deployment
-from peeweeplus import MySQLDatabase, JSONModel
-
-from digsigdb.config import CONFIG
+from peeweeplus import MySQLDatabaseProxy, JSONModel
 
 
 __all__ = ['DigsigdbModel', 'Statistics', 'ProxyHost']
 
 
-DATABASE = MySQLDatabase.from_config(CONFIG['db'])
+DATABASE = MySQLDatabaseProxy('digsigdb')
 
 
 def create_tables():
