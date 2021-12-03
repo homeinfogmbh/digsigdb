@@ -14,6 +14,6 @@ setup(
     maintainer='Richard Neumann',
     maintainer_email='r.neumann@homeinfo.de',
     requires=['mdb'],
-    packages=['digsigdb'],
+    py_modules=['digsigdb'],
     description='Digital Sigange Database bindings.'
 )
