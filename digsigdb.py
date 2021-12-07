@@ -14,7 +14,7 @@ from peeweeplus import MySQLDatabaseProxy, JSONModel
 __all__ = ['DigsigdbModel', 'Statistics', 'ProxyHost']
 
 
-DATABASE = MySQLDatabaseProxy('digsigdb')
+DATABASE = MySQLDatabaseProxy('application', 'digsigdb.conf')
 
 
 def create_tables():
