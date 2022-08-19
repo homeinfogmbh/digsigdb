@@ -4,7 +4,7 @@ Provides ORM models for miscellaneous digital
 signage data that is not part of dscms4.
 """
 from __future__ import annotations
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Union
 
 from peewee import CharField, DateTimeField, ForeignKeyField
@@ -51,10 +51,9 @@ class Statistics(DigsigdbModel):
         return record
 
     @classmethod
-    def truncate(cls, period: timedelta) -> None:
-        """Remove all entries older than now minus the given timedelta."""
-        timestamp = datetime.now() - period
-        return cls.delete().where(cls.timestamp < timestamp).execute()
+    def truncate(cls, before: datetime) -> None:
+        """Remove all entries older than the given timestamp."""
+        return cls.delete().where(cls.timestamp < before).execute()
 
     @classmethod
     def latest(cls, deployment: Union[Deployment, int]) -> Statistics:
