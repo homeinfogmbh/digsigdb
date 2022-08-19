@@ -72,13 +72,13 @@ class Statistics(DigsigdbModel):
 
     def to_csv(self, sep: str = ',') -> str:
         """Converts the record into a CSV entry."""
-        address = self.deployment.address
-        timestamp = self.timestamp.isoformat()
-        fields = (
-            timestamp, address.street, address.house_number, address.zip_code,
+        return sep.join([
+            self.timestamp.isoformat(),
+            (address := self.deployment.address).street,
+            address.house_number,
+            address.zip_code,
             address.city, self.document
-        )
-        return sep.join(fields)
+        ])
 
 
 class ProxyHost(DigsigdbModel):
