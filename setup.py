@@ -13,7 +13,11 @@ setup(
     author_email='info@homeinfo.de',
     maintainer='Richard Neumann',
     maintainer_email='r.neumann@homeinfo.de',
-    requires=['mdb'],
+    requires=[
+        'hwdb',
+        'peewee',
+        'peeweeplus'
+    ],
     py_modules=['digsigdb'],
     description='Digital Sigange Database bindings.'
 )
