@@ -62,8 +62,11 @@ class Statistics(DigsigdbModel):
         """Returns the latest statistics
         record for the respective deployment.
         """
-        return cls.select().where(cls.deployment == deployment).order_by(
-            cls.timestamp.desc()).get()
+        return cls.select().where(
+            cls.deployment == deployment
+        ).order_by(
+            cls.timestamp.desc()
+        ).get()
 
     def to_csv(self, sep=','):
         """Converts the record into a CSV entry."""
