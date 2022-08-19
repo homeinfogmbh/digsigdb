@@ -27,7 +27,7 @@ def create_tables():
 class DigsigdbModel(JSONModel):
     """Abstract common model."""
 
-    class Meta:     # pylint: disable=C0111,R0903
+    class Meta:
         database = DATABASE
         schema = database.database
 
@@ -68,7 +68,7 @@ class Statistics(DigsigdbModel):
     def to_csv(self, sep=','):
         """Converts the record into a CSV entry."""
         address = self.deployment.address
-        timestamp = self.timestamp.isoformat()  # pylint: disable=E1101
+        timestamp = self.timestamp.isoformat()
         fields = (
             timestamp, address.street, address.house_number, address.zip_code,
             address.city, self.document
@@ -79,7 +79,7 @@ class Statistics(DigsigdbModel):
 class ProxyHost(DigsigdbModel):
     """Valid proxy hosts."""
 
-    class Meta:     # pylint: disable=C0111,R0903
+    class Meta:
         table_name = 'proxy_hosts'
 
     hostname = CharField(255)
