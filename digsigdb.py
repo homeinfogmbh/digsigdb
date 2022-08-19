@@ -13,17 +13,10 @@ from hwdb import Deployment
 from peeweeplus import MySQLDatabaseProxy, JSONModel
 
 
-__all__ = ['DigsigdbModel', 'Statistics', 'ProxyHost']
+__all__ = ['DigsigdbModel', 'Statistics', 'ProxyHost', 'create_tables']
 
 
 DATABASE = MySQLDatabaseProxy('application', 'digsigdb.conf')
-
-
-def create_tables():
-    """Creates the tables."""
-
-    for model in MODELS:
-        model.create_table()
 
 
 class DigsigdbModel(JSONModel):
@@ -95,3 +88,10 @@ class ProxyHost(DigsigdbModel):
 
 
 MODELS = (Statistics, ProxyHost)
+
+
+def create_tables():
+    """Creates the tables."""
+
+    for model in MODELS:
+        model.create_table()
