@@ -43,7 +43,7 @@ class Statistics(DigsigdbModel):
             deployment: Union[Deployment, int],
             document: str
     ) -> Statistics:
-        """Adds a new statistics entry."""
+        """Add a new statistics entry."""
         record = cls()
         record.deployment = deployment
         record.document = document
@@ -52,14 +52,14 @@ class Statistics(DigsigdbModel):
 
     @classmethod
     def truncate(cls, period: timedelta) -> None:
-        """Removes all entries older than now minus the given timedelta."""
+        """Remove all entries older than now minus the given timedelta."""
         timestamp = datetime.now() - period
         return cls.delete().where(cls.timestamp < timestamp).execute()
 
     @classmethod
     def latest(cls, deployment: Union[Deployment, int]) -> Statistics:
-        """Returns the latest statistics
-        record for the respective deployment.
+        """Return the latest statistics
+        record for the given deployment.
         """
         return cls.select().where(
             cls.deployment == deployment
@@ -68,7 +68,7 @@ class Statistics(DigsigdbModel):
         ).get()
 
     def to_csv(self, sep: str = ',') -> str:
-        """Converts the record into a CSV entry."""
+        """Convert the record into a CSV entry."""
         return sep.join([
             self.timestamp.isoformat(),
             (address := self.deployment.address).street,
