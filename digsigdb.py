@@ -1,7 +1,7 @@
 """Digital signage database ORM models.
 
-Provides ORM models for digital signage
-data that is not part of dscms4.
+Provides ORM models for miscellaneous digital
+signage data that is not part of dscms4.
 """
 from __future__ import annotations
 from datetime import datetime, timedelta
