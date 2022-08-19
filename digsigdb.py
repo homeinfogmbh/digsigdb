@@ -45,7 +45,11 @@ class Statistics(DigsigdbModel):
     timestamp = DateTimeField(default=datetime.now)
 
     @classmethod
-    def add(cls, deployment, document):
+    def add(
+            cls,
+            deployment: Union[Deployment, int],
+            document: str
+    ) -> Statistics:
         """Adds a new statistics entry."""
         record = cls()
         record.deployment = deployment
