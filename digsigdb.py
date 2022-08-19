@@ -37,7 +37,8 @@ class Statistics(DigsigdbModel):
 
     deployment = ForeignKeyField(
         Deployment, column_name='deployment', on_delete='CASCADE',
-        on_update='CASCADE')
+        on_update='CASCADE'
+    )
     document = CharField(255)
     timestamp = DateTimeField(default=datetime.now)
 
@@ -70,7 +71,8 @@ class Statistics(DigsigdbModel):
         timestamp = self.timestamp.isoformat()  # pylint: disable=E1101
         fields = (
             timestamp, address.street, address.house_number, address.zip_code,
-            address.city, self.document)
+            address.city, self.document
+        )
         return sep.join(fields)
 
 
