@@ -1,2 +1,2 @@
-# appcmd
+# digsigdb
 Digital Signage Database.
