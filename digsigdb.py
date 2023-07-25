@@ -13,10 +13,10 @@ from hwdb import Deployment
 from peeweeplus import MySQLDatabaseProxy, JSONModel
 
 
-__all__ = ['DigsigdbModel', 'Statistics', 'ProxyHost', 'create_tables']
+__all__ = ["DigsigdbModel", "Statistics", "ProxyHost", "create_tables"]
 
 
-DATABASE = MySQLDatabaseProxy('application', 'digsigdb.conf')
+DATABASE = MySQLDatabaseProxy("application", "digsigdb.conf")
 
 
 class DigsigdbModel(JSONModel):
@@ -31,18 +31,13 @@ class Statistics(DigsigdbModel):
     """Usage statistics entries."""
 
     deployment = ForeignKeyField(
-        Deployment, column_name='deployment', on_delete='CASCADE',
-        on_update='CASCADE'
+        Deployment, column_name="deployment", on_delete="CASCADE", on_update="CASCADE"
     )
     document = CharField(255)
     timestamp = DateTimeField(default=datetime.now)
 
     @classmethod
-    def add(
-            cls,
-            deployment: Union[Deployment, int],
-            document: str
-    ) -> Statistics:
+    def add(cls, deployment: Union[Deployment, int], document: str) -> Statistics:
         """Add a new statistics entry."""
         record = cls()
         record.deployment = deployment
@@ -60,28 +55,32 @@ class Statistics(DigsigdbModel):
         """Return the latest statistics
         record for the given deployment.
         """
-        return cls.select().where(
-            cls.deployment == deployment
-        ).order_by(
-            cls.timestamp.desc()
-        ).get()
+        return (
+            cls.select()
+            .where(cls.deployment == deployment)
+            .order_by(cls.timestamp.desc())
+            .get()
+        )
 
-    def to_csv(self, sep: str = ',') -> str:
+    def to_csv(self, sep: str = ",") -> str:
         """Convert the record into a CSV entry."""
-        return sep.join([
-            self.timestamp.isoformat(),
-            (address := self.deployment.address).street,
-            address.house_number,
-            address.zip_code,
-            address.city, self.document
-        ])
+        return sep.join(
+            [
+                self.timestamp.isoformat(),
+                (address := self.deployment.address).street,
+                address.house_number,
+                address.zip_code,
+                address.city,
+                self.document,
+            ]
+        )
 
 
 class ProxyHost(DigsigdbModel):
     """Valid proxy hosts."""
 
     class Meta:
-        table_name = 'proxy_hosts'
+        table_name = "proxy_hosts"
 
     hostname = CharField(255)
 
